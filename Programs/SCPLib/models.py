@@ -256,6 +256,9 @@ class LoginData(User):
     def __str__(self):
         return self.login
 
+    def isExpired(self):
+        return self.expire <= datetime.datetime.now()
+
 
 class UserFile(Base):
     __tablename__ = 'userFile'
@@ -312,6 +315,9 @@ class AccessCard(Base):
 
     def __str__(self):
         return f"{self.card_id} (L{self.user.clearance_id})"
+
+    def isExpired(self):
+        return self.expire <= datetime.datetime.now()
 
 
 class Facility(Base):
@@ -395,6 +401,9 @@ class UserFileSpecialAccess(Base):
     def __str__(self):
         return f"{self.user} - {self.userFile}"
 
+    def isExpired(self):
+        return self.expiryDateTime <= datetime.datetime.now()
+
 
 class UserToUnit(Base):
     __tablename__ = 'userToUnit'
@@ -477,9 +486,12 @@ class Session(Base):
 
     def __str__(self):
         str = f"[{self.datetime}] {self.loginData_user}"
-        if self.expire <= datetime.datetime.now():
+        if self.isExpired():
             str += " (expired)"
         return str
+
+    def isExpired(self):
+        return self.expire <= datetime.datetime.now()
 
 
 class SystemAccess(Base):
@@ -574,6 +586,9 @@ class UserObjectSpecialAccess(Base):
     def __str__(self):
         return f"[SCP-{self.object_id}] {self.user} -  {self.clearance_id}"
 
+    def isExpired(self):
+        return self.expiryDateTime <= datetime.datetime.now()
+
 
 class UserToObject(Base):
     __tablename__ = 'userToObject'
@@ -613,3 +628,6 @@ class UserRoomSpecialAccess(Base):
 
     def __str__(self):
         return f"{self.user} -  {self.room}"
+
+    def isExpired(self):
+        return self.expiryDateTime <= datetime.datetime.now()

@@ -17,8 +17,8 @@ class dbController:
                               (pwd.__len__() != 0) and\
                               (hashlib.sha256((pwd + _SALT).encode('utf-8')).hexdigest() == userData.password)
         if loginAttemptOutcome:
-            if userData.status_id == 2:
-                if userData.expire > datetime.datetime.now():
+            if userData.status.name == "Active":
+                if not userData.isExpired():
                     session = models.Session(
                         id=str(uuid.uuid4()),
                         accessStatus=self.fetchRow(models.AccessStatus, name="Active").first(),
