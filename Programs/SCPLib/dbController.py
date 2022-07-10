@@ -19,16 +19,23 @@ class dbController:
         if loginAttemptOutcome:
             if userData.status.name == "Active":
                 if not userData.isExpired():
-                    session = models.Session(
-                        id=str(uuid.uuid4()),
-                        accessStatus=self.fetchRow(models.AccessStatus, name="Active").first(),
-                        loginData_user=userData
-                    )
-                    self.addRow(session)
-                    self.currentSession = session
+                    if not userData.sessions.filter_by(
+                            accessStatus=self.fetchRow(models.AccessStatus, name="Active").first()
+                    ).count():
+                        session = models.Session(
+                            id=str(uuid.uuid4()),
+                            accessStatus=self.fetchRow(models.AccessStatus, name="Active").first(),
+                            loginData_user=userData
+                        )
+                        self.addRow(session)
+                        self.currentSession = session
 
-                    print(f"Добро пожаловать, {userData.name} {userData.surname}. Фонд желает вам продуктивной работы.")
+                        print(f"Добро пожаловать, {userData.name} {userData.surname}. "
+                              f"Фонд желает вам продуктивной работы.")
 
+                    else:
+                        print("У Вас уже есть активная сессия. "
+                              "Завершите её, или при возникновении проблем, обратитесь в поддержку.")
                 else:
                     print("Ваши учётные данные истекли. Обратитесь в канцелярию.")
             else:
@@ -37,7 +44,7 @@ class dbController:
             print("Логин или пароль введены неправильно.")
         return self.currentSession
 
-    def fetchRow(self, table, **kwargs):
+    def fetchRow(self, table: models.Base, **kwargs):
         try:
             return self.sessionHandler.query(table).filter_by(**kwargs)
         except Exception as e:
@@ -59,11 +66,13 @@ class dbController:
                 print(e)
             return None
 
-    def modifyField(self, fieldToModify, value):
-        pass
+    def updateRow(self, rows, updaters: dict, synchronize_session='fetch'):
+        rows.update(updaters, synchronize_session=synchronize_session)
 
-    def modifyRow(self, tableToModify, rowId):
-        pass
+    def deleteRow(self, rows, synchronize_session='fetch'):
+        rows.delete(synchronize_session=synchronize_session)
 
-    def deleteRow(self, rowToDelete):
-        pass
+    def closeCurrentSession(self):
+        if self.currentSession:
+            self.currentSession.accessStatus = self.fetchRow(models.AccessStatus, name="Blocked").first()
+            self.sessionHandler.commit()

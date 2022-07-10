@@ -1,6 +1,6 @@
 import datetime
 from sqlalchemy import Boolean, Column, Date, DateTime, Float, ForeignKey, ForeignKeyConstraint, Integer, String, Text, text
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 
 
@@ -227,12 +227,12 @@ class User(Base):
     supervisor_id = Column(Integer)
     supervisor_employeeClass_id = Column(Integer)
 
-    clearance = relationship('Clearance', backref="users")
+    clearance = relationship('Clearance', backref=backref("users", lazy='dynamic'))
     decree = relationship('UserFile', primaryjoin='User.decree_id == UserFile.id')
-    employeeClass = relationship('EmployeeClass', backref="users")
-    facility = relationship('Facility', backref="users")
-    job = relationship('Job', backref="users")
-    supervisor = relationship('User', remote_side=[id, employeeClass_id], backref="subordinates")
+    employeeClass = relationship('EmployeeClass', backref=backref("users", lazy='dynamic'))
+    facility = relationship('Facility', backref=backref("users", lazy='dynamic'))
+    job = relationship('Job', backref=backref("users", lazy='dynamic'))
+    supervisor = relationship('User', remote_side=[id, employeeClass_id], backref=backref("subordinates", lazy='dynamic'))
 
     def __str__(self):
         return f"[{self.employeeClass}-{self.id}] {self.job} {self.name} {self.surname} (L{self.clearance_id})"
@@ -251,7 +251,7 @@ class LoginData(User):
     user_id = Column(Integer, primary_key=True, nullable=False)
     user_employeeClass_id = Column(Integer, primary_key=True, nullable=False)
 
-    status = relationship('AccessStatus', backref="logindata")
+    status = relationship('AccessStatus', backref=backref("logindata", lazy='dynamic'))
 
     def __str__(self):
         return self.login
@@ -278,9 +278,9 @@ class UserFile(Base):
     associated_with_employeeClass_id = Column(String)
 
     associated_with = relationship('User', primaryjoin='UserFile.associated_with_id == User.id')
-    clearance = relationship('Clearance', backref="userfiles")
-    creator = relationship('User', primaryjoin='UserFile.creator_id == User.id', backref="userfiles")
-    fileType = relationship('FileType', backref="userfiles")
+    clearance = relationship('Clearance', backref=backref("userfiles", lazy='dynamic'))
+    creator = relationship('User', primaryjoin='UserFile.creator_id == User.id', backref=backref("userfiles", lazy='dynamic'))
+    fileType = relationship('FileType', backref=backref("userfiles", lazy='dynamic'))
 
     def __str__(self):
         return self.docLink
@@ -310,8 +310,8 @@ class AccessCard(Base):
     user_id = Column(Integer, nullable=False)
     user_employeeClass_id = Column(Integer, nullable=False)
 
-    status = relationship('AccessStatus', backref="accesscards")
-    user = relationship('User', backref="accesscards")
+    status = relationship('AccessStatus', backref=backref("accesscards", lazy='dynamic'))
+    user = relationship('User', backref=backref("accesscards", lazy='dynamic'))
 
     def __str__(self):
         return f"{self.card_id} (L{self.user.clearance_id})"
@@ -330,7 +330,7 @@ class Facility(Base):
     description = Column(Text, nullable=False)
     facilityType_id = Column(ForeignKey('facilityType.id'), nullable=False)
 
-    facilityType = relationship('FacilityType', backref="facilities")
+    facilityType = relationship('FacilityType', backref=backref("facilities", lazy='dynamic'))
 
     def __str__(self):
         return self.name
@@ -343,9 +343,9 @@ class FileAccess(Base):
     fileUserType_id = Column(ForeignKey('fileUserType.id'), primary_key=True, nullable=False)
     fileAccessType_id = Column(ForeignKey('fileAccessType.id'), primary_key=True, nullable=False)
 
-    fileAccessType = relationship('FileAccessType', backref="fileaccesses")
-    fileType = relationship('FileType', backref="fileaccesses")
-    fileUserType = relationship('FileUserType', backref="fileaccesses")
+    fileAccessType = relationship('FileAccessType', backref=backref("fileaccesses", lazy='dynamic'))
+    fileType = relationship('FileType', backref=backref("fileaccesses", lazy='dynamic'))
+    fileUserType = relationship('FileUserType', backref=backref("fileaccesses", lazy='dynamic'))
 
     def __str__(self):
         return f"[{self.fileType}] {self.fileUserType} - {self.fileType}"
@@ -358,7 +358,7 @@ class Job(Base):
     name = Column(String(100), nullable=False)
     department_id = Column(ForeignKey('department.id'), nullable=False)
 
-    department = relationship('Department', backref="jobs")
+    department = relationship('Department', backref=backref("jobs", lazy='dynamic'))
 
     def __str__(self):
         return self.name
@@ -374,7 +374,7 @@ class System(Base):
     clearance_id = Column(ForeignKey('clearance.id'), nullable=False)
     documentation_id = Column(ForeignKey('userFile.id'), nullable=False)
 
-    clearance = relationship('Clearance', backref="systems")
+    clearance = relationship('Clearance', backref=backref("systems", lazy='dynamic'))
     documentation = relationship('UserFile')
 
     def __str__(self):
@@ -396,7 +396,7 @@ class UserFileSpecialAccess(Base):
 
     decree = relationship('UserFile', primaryjoin='UserFileSpecialAccess.decree_id == UserFile.id')
     userFile = relationship('UserFile', primaryjoin='UserFileSpecialAccess.userFile_id == UserFile.id')
-    user = relationship('User', backref="userfilespecialaccesses")
+    user = relationship('User', backref=backref("userfilespecialaccesses", lazy='dynamic'))
 
     def __str__(self):
         return f"{self.user} - {self.userFile}"
@@ -417,8 +417,8 @@ class UserToUnit(Base):
     user_id = Column(Integer, primary_key=True, nullable=False)
     user_employeeClass_id = Column(Integer, primary_key=True, nullable=False)
 
-    unit = relationship('Unit', backref="usertounits")
-    user = relationship('User', backref="usertounits")
+    unit = relationship('Unit', backref=backref("usertounits", lazy='dynamic'))
+    user = relationship('User', backref=backref("usertounits", lazy='dynamic'))
 
     def __str__(self):
         return f"{self.user} - {self.unit}"
@@ -436,9 +436,9 @@ class FacilitySection(Base):
     clearance_id = Column(ForeignKey('clearance.id'), nullable=False)
     specialAccessRequired = Column(Boolean, nullable=False)
 
-    clearance = relationship('Clearance', backref="facilitysections")
-    facility = relationship('Facility', backref="facilitysections")
-    sectionType = relationship('SectionType', backref="facilitysections")
+    clearance = relationship('Clearance', backref=backref("facilitysections", lazy='dynamic'))
+    facility = relationship('Facility', backref=backref("facilitysections", lazy='dynamic'))
+    sectionType = relationship('SectionType', backref=backref("facilitysections", lazy='dynamic'))
 
     def __str__(self):
         return self.name
@@ -457,12 +457,12 @@ class Object(Base):
     facility_id = Column(ForeignKey('facility.id'))
     specialAccessRequired = Column(Boolean, nullable=False)
 
-    clearance = relationship('Clearance', backref="objects")
-    containmentClass = relationship('ContainmentClass', backref="objects")
-    disruptionClass = relationship('DisruptionClass', backref="objects")
-    facility = relationship('Facility', backref="objects")
-    riskClass = relationship('RiskClass', backref="objects")
-    secondaryClass = relationship('SecondaryClass', backref="objects")
+    clearance = relationship('Clearance', backref=backref("objects", lazy='dynamic'))
+    containmentClass = relationship('ContainmentClass', backref=backref("objects", lazy='dynamic'))
+    disruptionClass = relationship('DisruptionClass', backref=backref("objects", lazy='dynamic'))
+    facility = relationship('Facility', backref=backref("objects", lazy='dynamic'))
+    riskClass = relationship('RiskClass', backref=backref("objects", lazy='dynamic'))
+    secondaryClass = relationship('SecondaryClass', backref=backref("objects", lazy='dynamic'))
 
     def __str__(self):
         return f"SCP-{self.id} {self.nickname}"
@@ -481,8 +481,8 @@ class Session(Base):
     loginData_user_employeeClass_id = Column(Integer, nullable=False)
     loginData_user_id = Column(Integer, nullable=False)
 
-    accessStatus = relationship('AccessStatus', backref="sessions")
-    loginData_user = relationship('LoginData', backref="sessions")
+    accessStatus = relationship('AccessStatus', backref=backref("sessions", lazy='dynamic'))
+    loginData_user = relationship('LoginData', backref=backref("sessions", lazy='dynamic'))
 
     def __str__(self):
         str = f"[{self.datetime}] {self.loginData_user}"
@@ -505,9 +505,9 @@ class SystemAccess(Base):
     user_id = Column(Integer, primary_key=True, nullable=False)
     user_employeeClass_id = Column(Integer, primary_key=True, nullable=False)
 
-    systemAccessRole = relationship('SystemAccessRole', backref="systemaccesses")
-    system = relationship('System', backref="systemaccesses")
-    user = relationship('User', backref="systemaccesses")
+    systemAccessRole = relationship('SystemAccessRole', backref=backref("systemaccesses", lazy='dynamic'))
+    system = relationship('System', backref=backref("systemaccesses", lazy='dynamic'))
+    user = relationship('User', backref=backref("systemaccesses", lazy='dynamic'))
 
     def __str__(self):
         return f"[{self.system}] {self.user} -  {self.systemAccessRole}"
@@ -530,10 +530,10 @@ class ObjectFile(Base):
     user_id = Column(Integer, nullable=False)
     user_employeeClass_id = Column(Integer, nullable=False)
 
-    clearance = relationship('Clearance', backref="objectfiles")
-    docType = relationship('DocType', backref="objectfiles")
-    object = relationship('Object', backref="objectfiles")
-    user = relationship('User', backref="objectfiles")
+    clearance = relationship('Clearance', backref=backref("objectfiles", lazy='dynamic'))
+    docType = relationship('DocType', backref=backref("objectfiles", lazy='dynamic'))
+    object = relationship('Object', backref=backref("objectfiles", lazy='dynamic'))
+    user = relationship('User', backref=backref("objectfiles", lazy='dynamic'))
 
     def __str__(self):
         return f"[SCP-{self.object_id}] {self.name} (L{self.clearance_id})"
@@ -553,12 +553,12 @@ class Room(Base):
     specialAccessRequired = Column(Boolean, nullable=False)
     plan_id = Column(ForeignKey('userFile.id'))
 
-    clearance = relationship('Clearance', backref="rooms")
-    facilitySection = relationship('FacilitySection', backref="rooms")
-    parentRoom = relationship('Room', remote_side=[id], backref="childrooms")
+    clearance = relationship('Clearance', backref=backref("rooms", lazy='dynamic'))
+    facilitySection = relationship('FacilitySection', backref=backref("rooms", lazy='dynamic'))
+    parentRoom = relationship('Room', remote_side=[id], backref=backref("childrooms", lazy='dynamic'))
     plan = relationship('UserFile')
-    roomStatus = relationship('RoomStatus', backref="rooms")
-    roomType = relationship('RoomType', backref="rooms")
+    roomStatus = relationship('RoomStatus', backref=backref("rooms", lazy='dynamic'))
+    roomType = relationship('RoomType', backref=backref("rooms", lazy='dynamic'))
 
     def __str__(self):
         return self.name
@@ -578,10 +578,10 @@ class UserObjectSpecialAccess(Base):
     user_id = Column(Integer, primary_key=True, nullable=False)
     user_employeeClass_id = Column(Integer, primary_key=True, nullable=False)
 
-    clearance = relationship('Clearance', backref="userobjectspecialaccesses")
-    decree = relationship('UserFile', backref="userobjectspecialaccesses")
-    object = relationship('Object', backref="userobjectspecialaccesses")
-    user = relationship('User', backref="userobjectspecialaccesses")
+    clearance = relationship('Clearance', backref=backref("userobjectspecialaccesses", lazy='dynamic'))
+    decree = relationship('UserFile', backref=backref("userobjectspecialaccesses", lazy='dynamic'))
+    object = relationship('Object', backref=backref("userobjectspecialaccesses", lazy='dynamic'))
+    user = relationship('User', backref=backref("userobjectspecialaccesses", lazy='dynamic'))
 
     def __str__(self):
         return f"[SCP-{self.object_id}] {self.user} -  {self.clearance_id}"
@@ -601,9 +601,9 @@ class UserToObject(Base):
     user_id = Column(Integer, primary_key=True, nullable=False)
     user_employeeClass_id = Column(Integer, primary_key=True, nullable=False)
 
-    object = relationship('Object', backref="usertoobjects")
-    userToObjectRole = relationship('UserToObjectRole', backref="usertoobjects")
-    user = relationship('User', backref="usertoobjects")
+    object = relationship('Object', backref=backref("usertoobjects", lazy='dynamic'))
+    userToObjectRole = relationship('UserToObjectRole', backref=backref("usertoobjects", lazy='dynamic'))
+    user = relationship('User', backref=backref("usertoobjects", lazy='dynamic'))
 
     def __str__(self):
         return f"[SCP-{self.object_id}] {self.user} -  {self.userToObjectRole}"
@@ -623,8 +623,8 @@ class UserRoomSpecialAccess(Base):
     user_employeeClass_id = Column(Integer, primary_key=True, nullable=False)
 
     decree = relationship('UserFile')
-    room = relationship('Room', backref="userroomspecialaccesses")
-    user = relationship('User', backref="userroomspecialaccesses")
+    room = relationship('Room', backref=backref("userroomspecialaccesses", lazy='dynamic'))
+    user = relationship('User', backref=backref("userroomspecialaccesses", lazy='dynamic'))
 
     def __str__(self):
         return f"{self.user} -  {self.room}"
