@@ -1,50 +1,15 @@
-
 import sqlalchemy as db
-
 from dbController import dbController
+from sqlalchemy.orm import Session
 
-engine = db.create_engine("sqlite:///C:\\Users\\Админ\\Desktop\\DnD\\SCP\\SCPDatabase.db")
+
+engine = db.create_engine("sqlite:///..\\SCPDatabase.db")
 metadata = db.MetaData(engine)
-controller = dbController(engine.connect())
+session = Session(engine)
+controller = dbController(engine.connect(), session)
 
-accessCard = db.Table("accessCard", metadata, autoload=True)
-accessStatus = db.Table("accessStatus", metadata, autoload=True)
-clearance = db.Table("clearance", metadata, autoload=True)
-containmentClass = db.Table("containmentClass", metadata, autoload=True)
-department = db.Table("department", metadata, autoload=True)
-disruptionClass = db.Table("disruptionClass", metadata, autoload=True)
-docType = db.Table("docType", metadata, autoload=True)
-employeeClass = db.Table("employeeClass", metadata, autoload=True)
-facility = db.Table("facility", metadata, autoload=True)
-facilitySection = db.Table("facilitySection", metadata, autoload=True)
-facilityType = db.Table("facilityType", metadata, autoload=True)
-fileAccess = db.Table("fileAccess", metadata, autoload=True)
-fileAccessType = db.Table("fileAccessType", metadata, autoload=True)
-fileType = db.Table("fileType", metadata, autoload=True)
-fileUserType = db.Table("fileUserType", metadata, autoload=True)
-job = db.Table("job", metadata, autoload=True)
-loginData = db.Table("loginData", metadata, autoload=True)
-object = db.Table("object", metadata, autoload=True)
-objectFile = db.Table("objectFile", metadata, autoload=True)
-riskClass = db.Table("riskClass", metadata, autoload=True)
-room = db.Table("room", metadata, autoload=True)
-roomStatus = db.Table("roomStatus", metadata, autoload=True)
-roomType = db.Table("roomType", metadata, autoload=True)
-secondaryClass = db.Table("secondaryClass", metadata, autoload=True)
-sectionType = db.Table("sectionType", metadata, autoload=True)
-session = db.Table("session", metadata, autoload=True)
-system = db.Table("system", metadata, autoload=True)
-systemAccess = db.Table("systemAccess", metadata, autoload=True)
-systemAccessRole = db.Table("systemAccessRole", metadata, autoload=True)
-unit = db.Table("unit", metadata, autoload=True)
-user = db.Table("user", metadata, autoload=True)
-userFile = db.Table("userFile", metadata, autoload=True)
-userFileSpecialAccess = db.Table("userFileSpecialAccess", metadata, autoload=True)
-userObjectSpecialAccess = db.Table("userObjectSpecialAccess", metadata, autoload=True)
-userRoomSpecialAccess = db.Table("userRoomSpecialAccess", metadata, autoload=True)
-userToObject = db.Table("userToObject", metadata, autoload=True)
-userToObjectRole = db.Table("userToObjectRole", metadata, autoload=True)
-userToUnit = db.Table("userToUnit", metadata, autoload=True)
+# controller.login("admin", "admin")
+currentSession = controller.login("rocketbunny", "0246851379tyre")
 
-if(controller.login(loginData.c.login, loginData.c.password, input("Введите логин от своей учетной записи: "), input("Введите пароль от своей учетной записи: "))):
-    pass
+if currentSession:
+    input("Введите команду: ")
