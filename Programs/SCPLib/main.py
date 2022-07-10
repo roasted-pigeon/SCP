@@ -10,6 +10,3 @@ controller = dbController(engine.connect(), session)
 
 # controller.login("admin", "admin")
 currentSession = controller.login("rocketbunny", "0246851379tyre")
-
-if currentSession:
-    input("Введите команду: ")
