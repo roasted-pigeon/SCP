@@ -29,7 +29,7 @@ class Clearance(Base):
     description = Column(Text, nullable=False)
 
     def __str__(self):
-        return self.name
+        return f"{self.id} ({self.name})"
 
 
 class ContainmentClass(Base):
@@ -360,6 +360,7 @@ class Job(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(100), nullable=False)
+    description = Column(Text, nullable=False)
     department_id = Column(ForeignKey('department.id'), nullable=False)
 
     department = relationship('Department', backref=backref("jobs", lazy='dynamic'))
@@ -490,8 +491,8 @@ class Session(Base):
     loginData_user = relationship('LoginData', backref=backref("sessions", lazy='dynamic'))
 
     def __str__(self):
-        str = f"[{self.datetime}] {self.loginData_user}"
-        if self.isExpired():
+        str = f"[{self.datetime}] {self.loginData_user}: {self.id}"
+        if self.isExpired:
             str += " (expired)"
         return str
 
@@ -671,7 +672,8 @@ class Log(Base):
         optionalFields = ""
         if self.optionalFields:
             for key, value in loads(bytes(self.optionalFields)).items():
-                optionalFields += f"{key}: {value}\n"
+                if value is not None:
+                    optionalFields += f"{key}: {value}\n"
         return f"[{self.datetime} {self.system}]\n" \
                f"Тип события: {self.logType}\n" \
                f"Резюме: {self.summary}\n" \

@@ -53,15 +53,15 @@ class logCollector:
             print(exception.message if settings.debug else settings.veiledError)
             self.log(
                 systemName,
-                "exception",
+                "Exception",
                 f"A {type(exception).__name__} exception occurred in the {systemName} v. {systemVersion} system",
-                str(exception.message) + "\n" + "".join(traceback.format_exception(exception))
+                str(traceback.format_exception(exception))
             )
         else:
             print(exception if settings.debug else settings.veiledError)
             self.log(
                 systemName,
-                "exception",
+                "Exception",
                 f"A {type(exception).__name__} exception occurred in the {systemName} v. {systemVersion} system",
-                str(exception) + "\n" + "".join(traceback.format_exception(exception))
+                str(traceback.format_exception(exception))
             )
