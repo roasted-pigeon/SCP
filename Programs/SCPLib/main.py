@@ -1,8 +1,4 @@
-from pickle import dumps, loads
-
 import sqlalchemy as db
-
-import models
 from logCollector import logCollector
 from dbController import dbController
 from sqlalchemy.orm import Session
@@ -32,10 +28,6 @@ def main():
 if __name__ == '__main__':
     try:
         main()
-        engine = db.create_engine(settings.SCPLogs)
-        metadata = db.MetaData(engine)
-        sessionHandler = Session(engine, future=True, autoflush=True)
-        print(sessionHandler.query(models.Log).filter_by(id=1).first())
     except Exception as e:
         collector.logException(e, SYSTEM_NAME, SYSTEM_VERSION)
     finally:

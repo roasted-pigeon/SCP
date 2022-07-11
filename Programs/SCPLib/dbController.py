@@ -8,7 +8,14 @@ from sqlalchemy.engine import Connection
 
 
 class dbController:
-    def __init__(self, systemName: str, systemVersion: str, connection: Connection, session: Session, collector: logCollector):
+    def __init__(
+            self,
+            systemName: str,
+            systemVersion: str,
+            connection: Connection,
+            session: Session,
+            collector: logCollector
+    ):
         self.systemName = systemName
         self.systemVersion = systemVersion
         self.connection = connection
@@ -20,7 +27,11 @@ class dbController:
         userData = self.fetchRow(models.LoginData, login=login).first()
         loginAttemptOutcome = (login.__len__() != 0) and \
                               (pwd.__len__() != 0) and \
-                              (hashlib.sha256((pwd + settings.passwordSalt).encode('utf-8')).hexdigest() == userData.password)
+                              (
+                                      hashlib.sha256(
+                                          (pwd + settings.passwordSalt).encode('utf-8')
+                                      ).hexdigest() == userData.password
+                              )
         if loginAttemptOutcome:
             if userData.status.name == "Active":
                 if not userData.isExpired:
