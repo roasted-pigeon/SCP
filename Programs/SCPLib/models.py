@@ -1,5 +1,7 @@
 import datetime
-from sqlalchemy import Boolean, Column, Date, DateTime, Float, ForeignKey, ForeignKeyConstraint, Integer, String, Text, text
+from pickle import loads
+
+from sqlalchemy import Boolean, Column, Date, DateTime, Float, ForeignKey, ForeignKeyConstraint, Integer, String, Text, text, BLOB
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -256,6 +258,7 @@ class LoginData(User):
     def __str__(self):
         return self.login
 
+    @property
     def isExpired(self):
         return self.expire <= datetime.datetime.now()
 
@@ -316,6 +319,7 @@ class AccessCard(Base):
     def __str__(self):
         return f"{self.card_id} (L{self.user.clearance_id})"
 
+    @property
     def isExpired(self):
         return self.expire <= datetime.datetime.now()
 
@@ -401,6 +405,7 @@ class UserFileSpecialAccess(Base):
     def __str__(self):
         return f"{self.user} - {self.userFile}"
 
+    @property
     def isExpired(self):
         return self.expiryDateTime <= datetime.datetime.now()
 
@@ -490,6 +495,7 @@ class Session(Base):
             str += " (expired)"
         return str
 
+    @property
     def isExpired(self):
         return self.expire <= datetime.datetime.now()
 
@@ -586,6 +592,7 @@ class UserObjectSpecialAccess(Base):
     def __str__(self):
         return f"[SCP-{self.object_id}] {self.user} -  {self.clearance_id}"
 
+    @property
     def isExpired(self):
         return self.expiryDateTime <= datetime.datetime.now()
 
@@ -629,5 +636,71 @@ class UserRoomSpecialAccess(Base):
     def __str__(self):
         return f"{self.user} -  {self.room}"
 
+    @property
     def isExpired(self):
         return self.expiryDateTime <= datetime.datetime.now()
+
+
+# Models for logCollector
+class LogType(Base):
+    __tablename__ = 'logType'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(Text(256), nullable=False)
+    description = Column(Text, nullable=False)
+
+    def __str__(self):
+        return self.name
+
+
+class Log(Base):
+    __tablename__ = 'logs'
+
+    id = Column(Integer, primary_key=True)
+    system = Column(Text(256), nullable=False)
+    logType_id = Column(ForeignKey('logType.id'), nullable=False)
+    summary = Column(Text, nullable=False)
+    description = Column(Text, nullable=False)
+    comment = Column(Text)
+    datetime = Column(DateTime, nullable=False, server_default=text("datetime('now', 'localtime')"))
+    optionalFields = Column(BLOB)
+
+    logType = relationship('LogType')
+
+    def __str__(self):
+        optionalFields = ""
+        if self.optionalFields:
+            for key, value in loads(bytes(self.optionalFields)).items():
+                optionalFields += f"{key}: {value}\n"
+        return f"[{self.datetime} {self.system}]\n" \
+               f"Тип события: {self.logType}\n" \
+               f"Резюме: {self.summary}\n" \
+               f"Описание: {self.description}\n" \
+               + (optionalFields if optionalFields else "") \
+               + f"Комментарий: {self.comment if self.comment else ''}"
+
+
+class Metalog(Base):
+    __tablename__ = 'metalogs'
+
+    id = Column(Integer, primary_key=True)
+    logType_id = Column(ForeignKey('logType.id'), nullable=False)
+    summary = Column(Text, nullable=False)
+    description = Column(Text, nullable=False)
+    comment = Column(Text)
+    datetime = Column(DateTime, nullable=False, server_default=text("datetime('now', 'localtime')"))
+    optionalFields = Column(BLOB)
+
+    logType = relationship('LogType')
+
+    def __str__(self):
+        optionalFields = ""
+        if self.optionalFields:
+            for key, value in loads(bytes(self.optionalFields)).items():
+                optionalFields += f"{key}: {value}\n"
+        return f"[{self.datetime}]\n" \
+               f"Тип события: {self.logType}\n" \
+               f"Резюме: {self.summary}\n" \
+               f"Описание: {self.description}\n" \
+               + (optionalFields if optionalFields else "") \
+               + f"Комментарий: {self.comment if self.comment else ''}"
