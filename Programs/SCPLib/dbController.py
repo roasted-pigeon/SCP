@@ -319,7 +319,7 @@ class dbController:
                                 filyType=userFile.fileType,
                                 fileRequesterType=self.fetchRow(
                                     models.FileRequesterType,
-                                    name="Department"
+                                    name="Special Access"
                                 ),
                                 fileRequester_id=user.department_id
                             ).all():
