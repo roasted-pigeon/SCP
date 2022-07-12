@@ -31,6 +31,30 @@ class Clearance(Base):
     def __str__(self):
         return f"{self.id} ({self.name})"
 
+    def __eq__(self, other):
+        if isinstance(other, Clearance):
+            return self.id == other.id
+
+    def __ne__(self, other):
+        if isinstance(other, Clearance):
+            return self.id != other.id
+
+    def __lt__(self, other):
+        if isinstance(other, Clearance):
+            return self.id < other.id
+
+    def __le__(self, other):
+        if isinstance(other, Clearance):
+            return self.id <= other.id
+
+    def __gt__(self, other):
+        if isinstance(other, Clearance):
+            return self.id > other.id
+
+    def __ge__(self, other):
+        if isinstance(other, Clearance):
+            return self.id >= other.id
+
 
 class ContainmentClass(Base):
     __tablename__ = 'containmentClass'
@@ -399,8 +423,8 @@ class UserFileSpecialAccess(Base):
     user_id = Column(Integer, primary_key=True, nullable=False)
     user_employeeClass_id = Column(Integer, primary_key=True, nullable=False)
 
-    decree = relationship('UserFile', primaryjoin='UserFileSpecialAccess.decree_id == UserFile.id')
-    userFile = relationship('UserFile', primaryjoin='UserFileSpecialAccess.userFile_id == UserFile.id')
+    decree = relationship('UserFile', primaryjoin='UserFileSpecialAccess.decree_id == UserFile.id', backref=backref("userfilespecialaccesses", lazy='dynamic'))
+    userFile = relationship('UserFile', primaryjoin='UserFileSpecialAccess.userFile_id == UserFile.id', backref=backref("userfilespecialaccesses", lazy='dynamic'))
     user = relationship('User', backref=backref("userfilespecialaccesses", lazy='dynamic'))
 
     def __str__(self):
@@ -440,10 +464,12 @@ class FacilitySection(Base):
     safetyRequirements = Column(Text, nullable=False)
     facility_id = Column(ForeignKey('facility.id'), nullable=False)
     clearance_id = Column(ForeignKey('clearance.id'), nullable=False)
+    sectionStatus_id = Column(ForeignKey('roomStatus.id'), nullable=False)
     specialAccessRequired = Column(Boolean, nullable=False)
 
     clearance = relationship('Clearance', backref=backref("facilitysections", lazy='dynamic'))
     facility = relationship('Facility', backref=backref("facilitysections", lazy='dynamic'))
+    sectionStatus = relationship('RoomStatus', backref=backref("facilitysections", lazy='dynamic'))
     sectionType = relationship('SectionType', backref=backref("facilitysections", lazy='dynamic'))
 
     def __str__(self):
@@ -500,6 +526,10 @@ class Session(Base):
     def isExpired(self):
         return self.expire <= datetime.datetime.now()
 
+    @property
+    def isValid(self):
+        return (not self.isExpired) and self.accessStatus.name == "Active"
+
 
 class SystemAccess(Base):
     __tablename__ = 'systemAccess'
@@ -517,7 +547,7 @@ class SystemAccess(Base):
     user = relationship('User', backref=backref("systemaccesses", lazy='dynamic'))
 
     def __str__(self):
-        return f"[{self.system}] {self.user} -  {self.systemAccessRole}"
+        return f"[{self.system}] {self.user} - {self.systemAccessRole}"
 
 
 class ObjectFile(Base):
@@ -591,7 +621,7 @@ class UserObjectSpecialAccess(Base):
     user = relationship('User', backref=backref("userobjectspecialaccesses", lazy='dynamic'))
 
     def __str__(self):
-        return f"[SCP-{self.object_id}] {self.user} -  {self.clearance_id}"
+        return f"[SCP-{self.object_id}] {self.user} - {self.clearance_id}"
 
     @property
     def isExpired(self):
@@ -614,7 +644,7 @@ class UserToObject(Base):
     user = relationship('User', backref=backref("usertoobjects", lazy='dynamic'))
 
     def __str__(self):
-        return f"[SCP-{self.object_id}] {self.user} -  {self.userToObjectRole}"
+        return f"[SCP-{self.object_id}] {self.user} - {self.userToObjectRole}"
 
 
 class UserRoomSpecialAccess(Base):
@@ -630,12 +660,37 @@ class UserRoomSpecialAccess(Base):
     user_id = Column(Integer, primary_key=True, nullable=False)
     user_employeeClass_id = Column(Integer, primary_key=True, nullable=False)
 
-    decree = relationship('UserFile')
+    decree = relationship('UserFile', backref=backref("userroomspecialaccesses", lazy='dynamic'))
     room = relationship('Room', backref=backref("userroomspecialaccesses", lazy='dynamic'))
     user = relationship('User', backref=backref("userroomspecialaccesses", lazy='dynamic'))
 
     def __str__(self):
-        return f"{self.user} -  {self.room}"
+        return f"{self.user} - {self.room}"
+
+    @property
+    def isExpired(self):
+        return self.expiryDateTime <= datetime.datetime.now()
+
+
+class UserSectionSpecialAccess(Base):
+    __tablename__ = 'userSectionSpecialAccess'
+    __table_args__ = (
+        ForeignKeyConstraint(('user_id', 'user_employeeClass_id'), ['user.id', 'user.employeeClass_id']),
+    )
+
+    facilitySection_id = Column(ForeignKey('facilitySection.id'), primary_key=True, nullable=False)
+    createdDateTime = Column(DateTime, nullable=False, server_default=text("datetime('now')"))
+    expiryDateTime = Column(DateTime, nullable=False, server_default=text("datetime('now', '+1 year')"))
+    decree_id = Column(ForeignKey('userFile.id'), nullable=False)
+    user_id = Column(Integer, primary_key=True, nullable=False)
+    user_employeeClass_id = Column(Integer, primary_key=True, nullable=False)
+
+    decree = relationship('UserFile', backref=backref("usersectionspecialaccesses", lazy='dynamic'))
+    facilitySection = relationship('FacilitySection', backref=backref("usersectionspecialaccesses", lazy='dynamic'))
+    user = relationship('User', backref=backref("usersectionspecialaccesses", lazy='dynamic'))
+
+    def __str__(self):
+        return f"{self.user} - {self.facilitySection}"
 
     @property
     def isExpired(self):
