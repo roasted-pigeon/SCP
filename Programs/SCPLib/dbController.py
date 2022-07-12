@@ -1,5 +1,3 @@
-import sys
-
 from SCPLib import models
 import uuid
 import hashlib
@@ -32,6 +30,9 @@ class dbController:
 
     def login(self, login: str, pwd: str):
         try:
+            errorMessage = None
+            if self.currentSession is not None:
+                self.closeCurrentSession()
             userData = self.fetchRow(models.LoginData, login=login).first()
             loginAttemptOutcome = bool(userData) and \
                                   (login.__len__() != 0) and \
@@ -61,14 +62,18 @@ class dbController:
                                   f"Фонд желает вам продуктивной работы.")
 
                         else:
-                            printError("У Вас уже есть активная сессия. "
-                                       "Завершите её, или при возникновении проблем, обратитесь в поддержку.")
+                            errorMessage = "У Вас уже есть активная сессия. " \
+                                           "Завершите её, или при возникновении проблем, обратитесь в поддержку."
+                            printError(errorMessage)
                     else:
-                        printError("Ваши учётные данные истекли. Обратитесь в канцелярию.")
+                        errorMessage = "Ваши учётные данные истекли. Обратитесь в канцелярию."
+                        printError(errorMessage)
                 else:
-                    printError(userData.status.description)
+                    errorMessage = userData.status.description
+                    printError(errorMessage)
             else:
-                printError("Логин или пароль введены неправильно.")
+                errorMessage = "Логин или пароль введены неправильно."
+                printError(errorMessage)
             if userData:
                 self.collector.log(
                     self.systemName,
@@ -77,8 +82,8 @@ class dbController:
                     f"Результат: {'успешно' if self.currentSession else 'безуспешно'}",
                     f"{userData.job} {userData.name} {userData.surname}, обладающ{'ий' if userData.gender else 'ая'} "
                     f"уровнем допуска {userData.clearance} совершил{'' if userData.gender else 'а'} попытку войти в "
-                    f"аккаунт с узла: {socket.gethostname()} с IP адреса: {socket.gethostbyname(socket.gethostname())}. "
-                    f"Попытка {'не' if not self.currentSession else ''} удалась.",
+                    f"аккаунт с узла: {socket.gethostname()}, IP адрес: {socket.gethostbyname(socket.gethostname())}. "
+                    f"Попытка {'не ' if not self.currentSession else ''}удалась.",
                     optionalFields=
                     {
                         "Учётная запись": login,
@@ -86,9 +91,64 @@ class dbController:
                         "IP": socket.gethostname(),
                         "Внешний IP": urllib.request.urlopen('https://ident.me').read().decode('utf8')
                         if gLibs.has_connection('https://ident.me') else None,
-                        "Сессия": self.currentSession.id if self.currentSession else None
+                        "Сессия": self.currentSession.id if self.currentSession else None,
+                        "Сообщение об ошибке": errorMessage
                     }
                 )
+        except Exception as exception:
+            self.collector.logException(exception, self.systemName, self.systemVersion)
+        finally:
+            return self.currentSession
+
+    def accessCardLogin(self, accessCard: models.AccessCard):
+        try:
+            errorMessage = None
+            if self.currentSession is not None:
+                self.closeCurrentSession()
+            if accessCard:
+                if accessCard.status.name == "Active":
+                    if not accessCard.isExpired:
+                        session = models.Session(
+                            id=str(uuid.uuid4()),
+                            accessStatus=self.fetchRow(models.AccessStatus, name="Active").first(),
+                            loginData_user=accessCard.user.loginData.first()
+                        )
+                        self.addRow(session)
+                        self.currentSession = session
+                        print(f"Добро пожаловать, {accessCard.user.name} {accessCard.user.surname}. "
+                              f"Фонд желает вам продуктивной работы.")
+                    else:
+                        errorMessage = "Срок действия карты истёк. Обратитесь в канцелярию."
+                        printError(errorMessage)
+                else:
+                    errorMessage = accessCard.status.description
+                    printError(errorMessage)
+                self.collector.log(
+                    self.systemName,
+                    "Auth",
+                    f"Пользователь {accessCard.user.loginData.first().login} прошёл аутентификацию в системе при "
+                    f"помощи ID-карты. Результат: {'успешно' if self.currentSession else 'безуспешно'}",
+                    f"{accessCard.user.job} {accessCard.user.name} {accessCard.user.surname}, "
+                    f"обладающ{'ий' if accessCard.user.gender else 'ая'} уровнем допуска {accessCard.user.clearance} "
+                    f"совершил{'' if accessCard.user.gender else 'а'} попытку аутентификации, используя свою ID-карту "
+                    f"с номером {accessCard.card_id}. Попытка аутентификации совершена на узле: "
+                    f"{socket.gethostname()}, IP адрес: {socket.gethostbyname(socket.gethostname())}. Попытка "
+                    f"{'не ' if not self.currentSession else ''}удалась.",
+                    optionalFields=
+                    {
+                        "Номер ID-карты": accessCard.card_id,
+                        "Учётная запись": accessCard.user.loginData.first().login,
+                        "Имя узла": socket.gethostbyname(socket.gethostname()),
+                        "IP": socket.gethostname(),
+                        "Внешний IP": urllib.request.urlopen('https://ident.me').read().decode('utf8')
+                        if gLibs.has_connection('https://ident.me') else None,
+                        "Сессия": self.currentSession.id if self.currentSession else None,
+                        "Сообщение об ошибке": errorMessage
+                    }
+                )
+            else:
+                errorMessage = "Карта не найдена в базе данных. Обратитсь в канцелярию."
+                printError(errorMessage)
         except Exception as exception:
             self.collector.logException(exception, self.systemName, self.systemVersion)
         finally:
@@ -99,7 +159,7 @@ class dbController:
         try:
             if room.roomStatus.name == "Закрыта":
                 if session.isValid:
-                    if session.loginData_user.userroomspecialaccesses.filter_by(room=room):
+                    if session.loginData_user.userroomspecialaccesses.filter_by(room=room).count():
                         return True
                     if not room.specialAccessRequired:
                         if session.loginData_user.clearance >= room.clearance:
@@ -122,7 +182,7 @@ class dbController:
         try:
             if facilitySection.roomStatus.name == "Закрыта":
                 if session.isValid:
-                    if session.loginData_user.usersectionspecialaccesses.filter_by(facilitySection=facilitySection):
+                    if session.loginData_user.usersectionspecialaccesses.filter_by(facilitySection=facilitySection).count():
                         return True
                     if not facilitySection.specialAccessRequired:
                         if session.loginData_user.clearance >= facilitySection.clearance:
@@ -144,7 +204,7 @@ class dbController:
     def checkAccessObject(self, session: models.Session, object: models.Object):
         try:
             if session.isValid:
-                if session.loginData_user.userobjectspecialaccesses.filter_by(object=object):
+                if session.loginData_user.userobjectspecialaccesses.filter_by(object=object).count():
                     return True
                 if not object.specialAccessRequired:
                     if session.loginData_user.clearance >= object.clearance:
@@ -165,7 +225,7 @@ class dbController:
     ):
         try:
             if session.isValid:
-                if session.loginData_user.userobjectspecialaccesses.filter_by(userFile=userFile):
+                if session.loginData_user.userobjectspecialaccesses.filter_by(userFile=userFile).count():
                     return True
                 if not userFile.specialAccessRequired:
                     pass
@@ -231,3 +291,12 @@ class dbController:
         except Exception as e:
             self.collector.logException(e, self.systemName, self.systemVersion)
             return None
+
+    def logout(self):
+        try:
+            self.closeCurrentSession()
+            print("Вы вышли из системы. Для дальнейшей работы потребуется повторная аутентификация.")
+        except Exception as exception:
+            self.collector.logException(exception, self.systemName, self.systemVersion)
+            return None
+

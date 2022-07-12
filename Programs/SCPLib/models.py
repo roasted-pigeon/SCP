@@ -278,6 +278,7 @@ class LoginData(User):
     user_employeeClass_id = Column(Integer, primary_key=True, nullable=False)
 
     status = relationship('AccessStatus', backref=backref("logindata", lazy='dynamic'))
+    user = relationship('User', backref=backref("loginData", lazy='dynamic'))
 
     def __str__(self):
         return self.login
@@ -423,7 +424,7 @@ class UserFileSpecialAccess(Base):
     user_id = Column(Integer, primary_key=True, nullable=False)
     user_employeeClass_id = Column(Integer, primary_key=True, nullable=False)
 
-    decree = relationship('UserFile', primaryjoin='UserFileSpecialAccess.decree_id == UserFile.id', backref=backref("userfilespecialaccesses", lazy='dynamic'))
+    decree = relationship('UserFile', primaryjoin='UserFileSpecialAccess.decree_id == UserFile.id', backref=backref("userfilespecialaccessesasdecree", lazy='dynamic'))
     userFile = relationship('UserFile', primaryjoin='UserFileSpecialAccess.userFile_id == UserFile.id', backref=backref("userfilespecialaccesses", lazy='dynamic'))
     user = relationship('User', backref=backref("userfilespecialaccesses", lazy='dynamic'))
 

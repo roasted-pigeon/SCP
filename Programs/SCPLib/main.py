@@ -1,7 +1,8 @@
 import sys
 import sqlalchemy as db
 
-from SCPLib import gLibs
+from SCPLib import gLibs, models
+
 
 from SCPLib.logCollector import logCollector
 from SCPLib.dbController import dbController
@@ -32,6 +33,22 @@ try:
     # login, password = "rocketbunny", "0246851379tyre"
     login, password = gLibs.auth()
     currentSession = controller.login(login, password)
+    print(currentSession)
+    currentSession = controller.accessCardLogin(
+        controller.fetchRow(
+            models.AccessCard,
+            card_id=input("Введите номер ID-карты: ")
+            # card_id="c8b410b8-4fbf-4626-a375-18720702e09c"
+        ).first()
+    )
+    if currentSession:
+        print(
+            controller.checkAccessRoom(currentSession, controller.fetchRow(
+                models.Room,
+                id=1
+            ).first())
+        )
+    print(currentSession)
 except Exception as e:
     collector.logException(e, SYSTEM_NAME, SYSTEM_VERSION)
 finally:
