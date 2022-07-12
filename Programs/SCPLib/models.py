@@ -144,8 +144,8 @@ class FileType(Base):
         return self.name
 
 
-class FileUserType(Base):
-    __tablename__ = 'fileUserType'
+class FileRequesterType(Base):
+    __tablename__ = 'fileAccessType'
 
     id = Column(Integer, primary_key=True)
     name = Column(String(256), nullable=False)
@@ -153,6 +153,18 @@ class FileUserType(Base):
 
     def __str__(self):
         return self.name
+
+
+class FileRequester(Base):
+    __tablename__ = 'fileRequester'
+
+    fileRequesterType_id = Column(ForeignKey('fileRequesterType.id'), primary_key=True, nullable=False)
+    fileRequester_id = Column(String(256), primary_key=True, nullable=False)
+
+    fileRequesterType = relationship('FileRequesterType', backref=backref("filerequesters", lazy='dynamic'))
+
+    def __str__(self):
+        return f"{self.fileRequesterType} with id: {self.fileRequester_id}"
 
 
 class RiskClass(Base):
@@ -260,8 +272,12 @@ class User(Base):
     job = relationship('Job', backref=backref("users", lazy='dynamic'))
     supervisor = relationship('User', remote_side=[id, employeeClass_id], backref=backref("subordinates", lazy='dynamic'))
 
+    @property
+    def fullID(self):
+        return f"{self.employeeClass}-{self.id}"
+
     def __str__(self):
-        return f"[{self.employeeClass}-{self.id}] {self.job} {self.name} {self.surname} (L{self.clearance_id})"
+        return f"[{self.fullID}] {self.job} {self.name} {self.surname} (L{self.clearance_id})"
 
 
 class LoginData(User):
@@ -367,17 +383,21 @@ class Facility(Base):
 
 class FileAccess(Base):
     __tablename__ = 'fileAccess'
+    __table_args__ = (
+        ForeignKeyConstraint(('fileRequester_fileRequesterType_id', 'fileRequester_fileRequester_id'), ['fileRequester.fileRequesterType_id', 'fileRequester.fileRequester_id']),
+    )
 
     fileType_id = Column(ForeignKey('fileType.id'), primary_key=True, nullable=False)
-    fileUserType_id = Column(ForeignKey('fileUserType.id'), primary_key=True, nullable=False)
     fileAccessType_id = Column(ForeignKey('fileAccessType.id'), primary_key=True, nullable=False)
+    fileRequester_fileRequesterType_id = Column(Integer, primary_key=True, nullable=False)
+    fileRequester_fileRequester_id = Column(String(256), primary_key=True, nullable=False)
 
     fileAccessType = relationship('FileAccessType', backref=backref("fileaccesses", lazy='dynamic'))
+    fileRequester = relationship('FileRequester', backref=backref("fileaccesses", lazy='dynamic'))
     fileType = relationship('FileType', backref=backref("fileaccesses", lazy='dynamic'))
-    fileUserType = relationship('FileUserType', backref=backref("fileaccesses", lazy='dynamic'))
 
     def __str__(self):
-        return f"[{self.fileType}] {self.fileUserType} - {self.fileType}"
+        return f"[{self.fileType}] {self.fileRequester} - {self.fileAccessType}"
 
 
 class Job(Base):

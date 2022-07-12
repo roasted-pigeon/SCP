@@ -182,7 +182,9 @@ class dbController:
         try:
             if facilitySection.roomStatus.name == "Закрыта":
                 if session.isValid:
-                    if session.loginData_user.usersectionspecialaccesses.filter_by(facilitySection=facilitySection).count():
+                    if session.loginData_user.usersectionspecialaccesses.filter_by(
+                            facilitySection=facilitySection
+                    ).count():
                         return True
                     if not facilitySection.specialAccessRequired:
                         if session.loginData_user.clearance >= facilitySection.clearance:
@@ -217,6 +219,7 @@ class dbController:
             self.collector.logException(exception, self.systemName, self.systemVersion)
             return False
 
+    # TODO: Это нужно оттестировать
     def checkAccessUserFile(
             self,
             session: models.Session,
@@ -225,13 +228,8 @@ class dbController:
     ):
         try:
             if session.isValid:
-                if session.loginData_user.userobjectspecialaccesses.filter_by(userFile=userFile).count():
+                if fileAccessType in self.getUserToFileAccesses(session.loginData_user, userFile):
                     return True
-                if not userFile.specialAccessRequired:
-                    pass
-                    # TODO: Необходимо реализовать проверку на то, к какому типу отношения пользователя к файлу
-                    #       относится пользователь. Потом в зависимости от типа отношения необходимо выполнить запрос на
-                    #       то, имеет ли пользователь с таким типом отношений запрошенный доступ к файлу
                 return False
             else:
                 printError("Ваша сессия истекла или была заблокирована! Авторизуйтесь заново")
@@ -300,3 +298,116 @@ class dbController:
             self.collector.logException(exception, self.systemName, self.systemVersion)
             return None
 
+    # TODO: Это нужно оттестировать
+    def getUserToFileAccesses(self, user: models.User, userFile: models.UserFile):
+        try:
+            if user and userFile:
+                accesses: list or set = []
+                blank_accesses = self.fetchRow(
+                    models.FileAccess,
+                    filyType=userFile.fileType,
+                    fileRequesterType=self.fetchRow(
+                        models.FileRequesterType,
+                        name="User"
+                    ),
+                    fileRequester_id=user.fullID
+                )
+                if user.userobjectspecialaccesses.filter_by(userFile=userFile).count():
+                    for access in \
+                            self.fetchRow(
+                                models.FileAccess,
+                                filyType=userFile.fileType,
+                                fileRequesterType=self.fetchRow(
+                                    models.FileRequesterType,
+                                    name="Department"
+                                ),
+                                fileRequester_id=user.department_id
+                            ).all():
+                        accesses.append(access.fileAccessType)
+                blank_accesses.union(
+                    self.fetchRow(
+                        models.FileAccess,
+                        filyType=userFile.fileType,
+                        fileRequesterType=self.fetchRow(
+                            models.FileRequesterType,
+                            name="Department"
+                        ),
+                        fileRequester_id=user.department_id
+                    )
+                )
+                blank_accesses.union(
+                    self.fetchRow(
+                        models.FileAccess,
+                        filyType=userFile.fileType,
+                        fileRequesterType=self.fetchRow(
+                            models.FileRequesterType,
+                            name="Department"
+                        ),
+                        fileRequester_id=user.department_id
+                    )
+                )
+                blank_accesses.union(
+                    self.fetchRow(
+                        models.FileAccess,
+                        filyType=userFile.fileType,
+                        fileRequesterType=self.fetchRow(
+                            models.FileRequesterType,
+                            name="Job"
+                        ),
+                        fileRequester_id=user.job_id
+                    )
+                )
+                blank_accesses.union(
+                    self.fetchRow(
+                        models.FileAccess,
+                        filyType=userFile.fileType,
+                        fileRequesterType=self.fetchRow(
+                            models.FileRequesterType,
+                            name="Class"
+                        ),
+                        fileRequester_id=user.employeeClass_id
+                    )
+                )
+                blank_accesses.union(
+                    self.fetchRow(
+                        models.FileAccess,
+                        filyType=userFile.fileType,
+                        fileRequesterType=self.fetchRow(
+                            models.FileRequesterType,
+                            name="Facility"
+                        ),
+                        fileRequester_id=user.facility_id
+                    )
+                )
+                blank_accesses.union(
+                    self.fetchRow(
+                        models.FileAccess,
+                        filyType=userFile.fileType,
+                        fileRequesterType=self.fetchRow(
+                            models.FileRequesterType,
+                            name="Supervisor"
+                        ),
+                        fileRequester_id=user.supervisor.fullID
+                    )
+                )
+                for unit in user.usertounits.all():
+                    blank_accesses.union(
+                        self.fetchRow(
+                            models.FileAccess,
+                            filyType=userFile.fileType,
+                            fileRequesterType=self.fetchRow(
+                                models.FileRequesterType,
+                                name="Unit"
+                            ),
+                            fileRequester_id=unit.id
+                        )
+                    )
+                for access in blank_accesses.all():
+                    accesses.append(access.fileAccessType)
+                accesses = set(accesses)
+                return accesses
+            else:
+                return None
+        except Exception as exception:
+            self.collector.logException(exception, self.systemName, self.systemVersion)
+            return None
