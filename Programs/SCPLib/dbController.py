@@ -312,29 +312,18 @@ class dbController:
                     ),
                     fileRequester_id=user.fullID
                 )
-                if user.userobjectspecialaccesses.filter_by(userFile=userFile).count():
-                    for access in \
-                            self.fetchRow(
-                                models.FileAccess,
-                                filyType=userFile.fileType,
-                                fileRequesterType=self.fetchRow(
-                                    models.FileRequesterType,
-                                    name="Special Access"
-                                ),
-                                fileRequester_id=user.department_id
-                            ).all():
-                        accesses.append(access.fileAccessType)
-                blank_accesses.union(
-                    self.fetchRow(
-                        models.FileAccess,
-                        filyType=userFile.fileType,
-                        fileRequesterType=self.fetchRow(
-                            models.FileRequesterType,
-                            name="Department"
-                        ),
-                        fileRequester_id=user.department_id
+                if user.userfilespecialaccesses.filter_by(userFile=userFile).count():
+                    blank_accesses.union(
+                        self.fetchRow(
+                            models.FileAccess,
+                            filyType=userFile.fileType,
+                            fileRequesterType=self.fetchRow(
+                                models.FileRequesterType,
+                                name="Special Access"
+                            )
+                        )
                     )
-                )
+
                 blank_accesses.union(
                     self.fetchRow(
                         models.FileAccess,
@@ -402,6 +391,16 @@ class dbController:
                             fileRequester_id=unit.id
                         )
                     )
+                blank_accesses.union(
+                    self.fetchRow(
+                        models.FileAccess,
+                        filyType=userFile.fileType,
+                        fileRequesterType=self.fetchRow(
+                            models.FileRequesterType,
+                            name="Everyone"
+                        )
+                    )
+                )
                 for access in blank_accesses.all():
                     accesses.append(access.fileAccessType)
                 accesses = set(accesses)
