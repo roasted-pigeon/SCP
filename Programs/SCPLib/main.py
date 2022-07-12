@@ -1,7 +1,10 @@
 import sys
 import sqlalchemy as db
-from logCollector import logCollector
-from dbController import dbController
+
+from SCPLib import gLibs
+
+from SCPLib.logCollector import logCollector
+from SCPLib.dbController import dbController
 from sqlalchemy.orm import Session
 
 import settings
@@ -22,21 +25,15 @@ try:
         collector if not settings.individualObjects else logCollector()
     )
 except Exception as exception:
-    print("Произошла ошибка!")
-    if hasattr(exception, 'message'):
-        print(exception.message if settings.debug else settings.veiledError)
+    gLibs.noLogException(exception)
     sys.exit()
 
-
-def main():
-    currentSession = controller.login("rocketbunny", "0246851379tyre")
-
-
-if __name__ == '__main__':
-    try:
-        main()
-    except Exception as e:
-        collector.logException(e, SYSTEM_NAME, SYSTEM_VERSION)
-    finally:
-        controller.closeCurrentSession()
-        session.close()
+try:
+    # login, password = "rocketbunny", "0246851379tyre"
+    login, password = gLibs.auth()
+    currentSession = controller.login(login, password)
+except Exception as e:
+    collector.logException(e, SYSTEM_NAME, SYSTEM_VERSION)
+finally:
+    controller.closeCurrentSession()
+    session.close()

@@ -2,9 +2,11 @@ import traceback
 from pickle import dumps
 
 import settings
-from models import LogType, Log, Metalog
+from SCPLib import gLibs
+from SCPLib.models import LogType, Log, Metalog
 import sqlalchemy as db
 from sqlalchemy.orm import Session
+from SCPLib.gLibs import printError
 
 
 class logCollector:
@@ -48,20 +50,26 @@ class logCollector:
         self.sessionHandler.commit()
 
     def logException(self, exception: Exception, systemName, systemVersion):
-        print("Произошла ошибка!")
+        printError("Произошла ошибка!")
         if hasattr(exception, 'message'):
-            print(exception.message if settings.debug else settings.veiledError)
-            self.log(
-                systemName,
-                "Exception",
-                f"A {type(exception).__name__} exception occurred in the {systemName} v. {systemVersion} system",
-                str(traceback.format_exception(exception))
-            )
+            printError((exception.message if settings.debug else settings.veiledError))
+            try:
+                self.log(
+                    systemName,
+                    "Exception",
+                    f"A {type(exception).__name__} exception occurred in the {systemName} v. {systemVersion} system",
+                    str(traceback.format_exception(exception))
+                )
+            except Exception as exc:
+                gLibs.noLogException(exc)
         else:
-            print(exception if settings.debug else settings.veiledError)
-            self.log(
-                systemName,
-                "Exception",
-                f"A {type(exception).__name__} exception occurred in the {systemName} v. {systemVersion} system",
-                str(traceback.format_exception(exception))
-            )
+            printError((exception if settings.debug else settings.veiledError))
+            try:
+                self.log(
+                    systemName,
+                    "Exception",
+                    f"A {type(exception).__name__} exception occurred in the {systemName} v. {systemVersion} system",
+                    str(traceback.format_exception(exception))
+                )
+            except Exception as exc:
+                gLibs.noLogException(exc)
