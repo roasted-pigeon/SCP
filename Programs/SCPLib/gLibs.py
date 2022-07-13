@@ -42,7 +42,7 @@ def auth():
         noLogException(exception)
 
 
-def has_connection(hostname):
+def has_connection(hostname: str):
     try:
         # see if we can resolve the host name -- tells us if there is
         # a DNS listening

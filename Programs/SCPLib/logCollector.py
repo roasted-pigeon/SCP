@@ -1,6 +1,9 @@
 import traceback
 from pickle import dumps
 
+from sqlalchemy import MetaData
+from sqlalchemy.engine import Engine, Connection
+
 import settings
 from SCPLib import gLibs
 from SCPLib.models import LogType, Log, Metalog
@@ -11,10 +14,10 @@ from SCPLib.gLibs import printError
 
 class logCollector:
     def __init__(self):
-        engine = db.create_engine(settings.SCPLogs)
-        metadata = db.MetaData(engine)
-        self.sessionHandler = Session(engine, future=True, autoflush=True)
-        self.connection = engine.connect()
+        engine: Engine = db.create_engine(settings.SCPLogs)
+        metadata: MetaData = db.MetaData(engine)
+        self.sessionHandler: Session = Session(engine, future=True, autoflush=True)
+        self.connection: Connection = engine.connect()
 
     def log(
             self,

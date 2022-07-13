@@ -1,8 +1,9 @@
 import sys
 import sqlalchemy as db
+from sqlalchemy import MetaData
+from sqlalchemy.engine import Engine
 
 from SCPLib import gLibs, models
-
 
 from SCPLib.logCollector import logCollector
 from SCPLib.dbController import dbController
@@ -10,19 +11,19 @@ from sqlalchemy.orm import Session
 
 import settings
 
-SYSTEM_NAME = "SCPLibs Debugger"
-SYSTEM_VERSION = "1.0.0"
+SYSTEM_NAME: str = "SCPLibs Debugger"
+SYSTEM_VERSION: str = "1.0.0"
 
 try:
-    engine = db.create_engine(settings.SCPDatabase)
-    metadata = db.MetaData(engine)
-    session = Session(engine, future=True, autoflush=True)
-    collector = logCollector()
-    controller = dbController(
+    engine: Engine = db.create_engine(settings.SCPDatabase)
+    metadata: MetaData = db.MetaData(engine)
+    sessionHandler: Session = Session(engine, future=True, autoflush=True)
+    collector: logCollector = logCollector()
+    controller: dbController = dbController(
         SYSTEM_NAME,
         SYSTEM_VERSION,
         engine.connect(),
-        session if not settings.individualObjects else Session(engine, future=True, autoflush=True),
+        sessionHandler if not settings.individualObjects else Session(engine, future=True, autoflush=True),
         collector if not settings.individualObjects else logCollector()
     )
 except Exception as exception:
@@ -30,9 +31,11 @@ except Exception as exception:
     sys.exit()
 
 try:
+    login: str
+    password: str
     # login, password = "rocketbunny", "0246851379tyre"
     login, password = gLibs.auth()
-    currentSession = controller.login(login, password)
+    currentSession: Session = controller.login(login, password)
     print(currentSession)
     currentSession = controller.accessCardLogin(
         controller.fetchRow(
@@ -53,4 +56,4 @@ except Exception as e:
     collector.logException(e, SYSTEM_NAME, SYSTEM_VERSION)
 finally:
     controller.closeCurrentSession()
-    session.close()
+    sessionHandler.close()

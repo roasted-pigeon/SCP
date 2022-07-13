@@ -18,19 +18,19 @@ class dbController:
             systemName: str,
             systemVersion: str,
             connection: Connection,
-            session: Session,
+            sessionHandler: Session,
             collector: logCollector
     ):
-        self.systemName = systemName
-        self.systemVersion = systemVersion
-        self.connection = connection
-        self.sessionHandler = session
-        self.currentSession = None
-        self.collector = collector
+        self.systemName: str = systemName
+        self.systemVersion: str = systemVersion
+        self.connection: Connection = connection
+        self.sessionHandler: Session = sessionHandler
+        self.currentSession: models.Session or None = None
+        self.collector: logCollector = collector
 
     def login(self, login: str, pwd: str):
         try:
-            errorMessage = None
+            errorMessage: str or None = None
             if self.currentSession is not None:
                 self.closeCurrentSession()
             userData = self.fetchRow(models.LoginData, login=login).first()
@@ -102,7 +102,7 @@ class dbController:
 
     def accessCardLogin(self, accessCard: models.AccessCard):
         try:
-            errorMessage = None
+            errorMessage: str or None = None
             if self.currentSession is not None:
                 self.closeCurrentSession()
             if accessCard:
@@ -154,12 +154,28 @@ class dbController:
         finally:
             return self.currentSession
 
-    # TODO: Необходимо добавить логгирование получения всех видов доступа
+    # TODO 1: Необходимо добавить логгирование получения всех видов доступа
+    # TODO 2: Есть смысл избавиться от параметров session и брать self.currentSession, так как не предполагается работа
+    #         с "чужими" сессиями, и метод не должен использоваться как статический, так как это позволит брать сессию
+    #         без непосредственной авторизации
+    # TODO 3: Нужно подумать над тем, чтобы доступ в комнаты проверять не по сессии, а просто по карте, а саму сессию
+    #         для проерки прав создавать непосредственно внутри метода
     def checkAccessRoom(self, session: models.Session, room: models.Room):
         try:
             if room.roomStatus.name == "Закрыта":
                 if session.isValid:
                     if session.loginData_user.userroomspecialaccesses.filter_by(room=room).count():
+                        # self.collector.log(
+                        #     self.systemName,
+                        #     self.systemVersion,
+                        #     f"{session.loginData_user.job} {session.loginData_user.surname} прошёл через двери "
+                        #     "комнаты {room}",
+                        #     f"",
+                        #     optionalFields=
+                        #     {
+                        #
+                        #     }
+                        # )
                         return True
                     if not room.specialAccessRequired:
                         if session.loginData_user.clearance >= room.clearance:
