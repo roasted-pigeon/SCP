@@ -3,11 +3,11 @@
 
 
 # This parameter defines the path to the main database of the Foundation
-# Default: "sqlite:///..\\SCPDatabase.db"
+# Default: "sqlite:///SCPDatabase.db"
 SCPDatabase: str = "sqlite:///SCPDatabase.db"
 
 # This parameter defines the path to the Foundation's log database
-# Default: "sqlite:///..\\SCPLogs.db"
+# Default: "sqlite:///SCPLogs.db"
 SCPLogs: str = "sqlite:///SCPLogs.db"
 
 # This parameter determines whether a separate object (dbController, logCollector, etc.) will be created if it is

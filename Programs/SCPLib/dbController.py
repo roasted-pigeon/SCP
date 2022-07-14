@@ -167,8 +167,8 @@ class dbController:
                         # self.collector.log(
                         #     self.systemName,
                         #     self.systemVersion,
-                        #     f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.surname} прошёл через двери "
-                        #     "комнаты {room}",
+                        #     f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.surname}
+                        #     "прошёл через двери комнаты {room}",
                         #     f"",
                         #     optionalFields=
                         #     {
