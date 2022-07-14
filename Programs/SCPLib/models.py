@@ -312,6 +312,7 @@ class UserFile(Base):
     )
 
     id = Column(Integer, primary_key=True)
+    name = Column(String(256), nullable=False)
     clearance_id = Column(ForeignKey('clearance.id'), nullable=False)
     createdDateTime = Column(DateTime(timezone=True), nullable=False, server_default=text("datetime('now')"))
     docLink = Column(Integer, nullable=False)
@@ -327,7 +328,7 @@ class UserFile(Base):
     fileType = relationship('FileType', backref=backref("userfiles", lazy='dynamic'))
 
     def __str__(self):
-        return self.docLink
+        return self.name
 
 
 class UserToObjectRole(Base):
@@ -594,7 +595,8 @@ class ObjectFile(Base):
     user = relationship('User', backref=backref("objectfiles", lazy='dynamic'))
 
     def __str__(self):
-        return f"[SCP-{self.object_id}] {self.name} (L{self.clearance_id})"
+        return f"[SCP-{self.object_id}] {self.name} " \
+               f"(L{self.clearance_id if self.clearance is not None else self.object.clearance_id})"
 
 
 class Room(Base):

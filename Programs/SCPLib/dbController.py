@@ -4,9 +4,10 @@ import hashlib
 import settings
 import socket
 import urllib.request
+from sqlalchemy import desc
+
 from SCPLib import gLibs
 from SCPLib.gLibs import printError
-
 from SCPLib.logCollector import logCollector
 from sqlalchemy.orm import Session
 from sqlalchemy.engine import Connection
@@ -155,20 +156,18 @@ class dbController:
             return self.currentSession
 
     # TODO 1: Необходимо добавить логгирование получения всех видов доступа
-    # TODO 2: Есть смысл избавиться от параметров session и брать self.currentSession, так как не предполагается работа
-    #         с "чужими" сессиями, и метод не должен использоваться как статический, так как это позволит брать сессию
-    #         без непосредственной авторизации
+    # TODO 2: (DONE)
     # TODO 3: Нужно подумать над тем, чтобы доступ в комнаты проверять не по сессии, а просто по карте, а саму сессию
     #         для проерки прав создавать непосредственно внутри метода
-    def checkAccessRoom(self, session: models.Session, room: models.Room):
+    def checkAccessRoom(self, room: models.Room):
         try:
             if room.roomStatus.name == "Закрыта":
-                if session.isValid:
-                    if session.loginData_user.userroomspecialaccesses.filter_by(room=room).count():
+                if self.currentSession.isValid:
+                    if self.currentSession.loginData_user.userroomspecialaccesses.filter_by(room=room).count():
                         # self.collector.log(
                         #     self.systemName,
                         #     self.systemVersion,
-                        #     f"{session.loginData_user.job} {session.loginData_user.surname} прошёл через двери "
+                        #     f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.surname} прошёл через двери "
                         #     "комнаты {room}",
                         #     f"",
                         #     optionalFields=
@@ -178,7 +177,7 @@ class dbController:
                         # )
                         return True
                     if not room.specialAccessRequired:
-                        if session.loginData_user.clearance >= room.clearance:
+                        if self.currentSession.loginData_user.clearance >= room.clearance:
                             return True
                     return False
                 else:
@@ -194,16 +193,16 @@ class dbController:
             self.collector.logException(exception, self.systemName, self.systemVersion)
             return False
 
-    def checkAccessSection(self, session: models.Session, facilitySection: models.FacilitySection):
+    def checkAccessSection(self, facilitySection: models.FacilitySection):
         try:
             if facilitySection.roomStatus.name == "Закрыта":
-                if session.isValid:
-                    if session.loginData_user.usersectionspecialaccesses.filter_by(
+                if self.currentSession.isValid:
+                    if self.currentSession.loginData_user.usersectionspecialaccesses.filter_by(
                             facilitySection=facilitySection
                     ).count():
                         return True
                     if not facilitySection.specialAccessRequired:
-                        if session.loginData_user.clearance >= facilitySection.clearance:
+                        if self.currentSession.loginData_user.clearance >= facilitySection.clearance:
                             return True
                     return False
                 else:
@@ -219,14 +218,154 @@ class dbController:
             self.collector.logException(exception, self.systemName, self.systemVersion)
             return False
 
-    def checkAccessObject(self, session: models.Session, object: models.Object):
+    def checkAccessObject(self, object: models.Object):
         try:
-            if session.isValid:
-                if session.loginData_user.userobjectspecialaccesses.filter_by(object=object).count():
+            UOSAs = self.currentSession.loginData_user.userobjectspecialaccesses.filter_by(object=object).orderby(
+                        desc(models.UserObjectSpecialAccess.clearance_id)
+                )
+            if self.currentSession.isValid:
+                if UOSAs.count():
+                    self.collector.log(
+                        self.systemName,
+                        self.systemVersion,
+                        f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.surname} "
+                        f"получил{'' if self.currentSession.loginData_user.gender else 'а'} доступ к базовой "
+                        f"информации об объекте SCP-{object.id}",
+                        f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.name} "
+                        f"{self.currentSession.loginData_user.surname} "
+                        f"запросил{'' if self.currentSession.loginData_user.gender else 'а'} доступ к материалам, "
+                        f"содержащим базовую информацию об объекте SCP-{object.id}. Доступ был предоставлен на "
+                        f"основании наличия спеиального допуска (L{UOSAs.first().clearance_id}).",
+                        optionalFields=
+                        {
+                            "Сотрудник": self.currentSession.loginData_user,
+                            "Объект": object,
+                            "Специальный допуск": UOSAs.first(),
+                            "Сессия": self.currentSession.id if self.currentSession else None,
+                        }
+                    )
                     return True
                 if not object.specialAccessRequired:
-                    if session.loginData_user.clearance >= object.clearance:
+                    if self.currentSession.loginData_user.clearance >= object.clearance:
+                        self.collector.log(
+                            self.systemName,
+                            self.systemVersion,
+                            f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.surname} "
+                            f"получил{'' if self.currentSession.loginData_user.gender else 'а'} доступ к базовой "
+                            f"информации об объекте SCP-{object.id}",
+                            f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.name} "
+                            f"{self.currentSession.loginData_user.surname} "
+                            f"запросил{'' if self.currentSession.loginData_user.gender else 'а'} доступ к материалам, "
+                            f"содержащим базовую информацию об объекте SCP-{object.id}. Доступ был предоставлен на "
+                            f"основании наличия необходимого уровня допуска "
+                            f"(L{self.currentSession.loginData_user.clearance_id}).",
+                            optionalFields=
+                            {
+                                "Сотрудник": self.currentSession.loginData_user,
+                                "Объект": object,
+                                "Сессия": self.currentSession.id if self.currentSession else None,
+                            }
+                        )
                         return True
+                self.collector.log(
+                    self.systemName,
+                    self.systemVersion,
+                    f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.surname} "
+                    f"попытал{'ся' if self.currentSession.loginData_user.gender else 'ась'} получить доступ к базовой "
+                    f"информации об объекте SCP-{object.id}",
+                    f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.name} "
+                    f"{self.currentSession.loginData_user.surname} "
+                    f"запросил{'' if self.currentSession.loginData_user.gender else 'а'} доступ к материалам, "
+                    f"содержащим базовую информацию об объекте SCP-{object.id}. Доступ не был предоставлен.",
+                    optionalFields=
+                    {
+                        "Сотрудник": self.currentSession.loginData_user,
+                        "Объект": object,
+                        "Сессия": self.currentSession.id if self.currentSession else None,
+                    }
+                )
+                return False
+            else:
+                printError("Ваша сессия истекла или была заблокирована! Авторизуйтесь заново")
+                return False
+        except Exception as exception:
+            self.collector.logException(exception, self.systemName, self.systemVersion)
+            return False
+
+    def checkAccessObjectFile(self, objectFile: models.ObjectFile):
+        try:
+            UOSAs = self.currentSession.loginData_user.userobjectspecialaccesses.filter_by(object=objectFile.object).\
+                orderby(
+                        desc(models.UserObjectSpecialAccess.clearance_id)
+                )
+            clearance = objectFile.clearance if objectFile.clearance is not None else objectFile.object.clearance
+            if self.currentSession.isValid:
+                if UOSAs.count():
+                    if UOSAs.first().clearance >= clearance:
+                        self.collector.log(
+                            self.systemName,
+                            self.systemVersion,
+                            f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.surname} "
+                            f"получил{'' if self.currentSession.loginData_user.gender else 'а'} доступ к материалам "
+                            f"об объекте SCP-{objectFile.object.id}.",
+                            f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.name} "
+                            f"{self.currentSession.loginData_user.surname} "
+                            f"запросил{'' if self.currentSession.loginData_user.gender else 'а'} доступ к материалам, "
+                            f"содержащим информацию об объекте SCP-{objectFile.object.id} (\"{objectFile.name}\"). "
+                            f"Доступ был предоставлен на основании наличия спеиального допуска "
+                            f"(L{UOSAs.first().clearance_id}).",
+                            optionalFields=
+                            {
+                                "Сотрудник": self.currentSession.loginData_user,
+                                "Объект": objectFile.object,
+                                "Документ": objectFile,
+                                "Специальный допуск": UOSAs.first(),
+                                "Сессия": self.currentSession.id if self.currentSession else None,
+                            }
+                        )
+                        return True
+                if not objectFile.specialAccessRequired:
+                    if self.currentSession.loginData_user.clearance >= clearance:
+                        self.collector.log(
+                            self.systemName,
+                            self.systemVersion,
+                            f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.surname} "
+                            f"получил{'' if self.currentSession.loginData_user.gender else 'а'} доступ к материалам "
+                            f"об объекте SCP-{objectFile.object.id}",
+                            f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.name} "
+                            f"{self.currentSession.loginData_user.surname} "
+                            f"запросил{'' if self.currentSession.loginData_user.gender else 'а'} доступ к материалам, "
+                            f"содержащим информацию об объекте SCP-{objectFile.object.id} (\"{objectFile.name}\"). "
+                            f"Доступ был предоставлен на основании наличия необходимого уровня допуска "
+                            f"(L{UOSAs.first().clearance_id}).",
+                            optionalFields=
+                            {
+                                "Сотрудник": self.currentSession.loginData_user,
+                                "Объект": objectFile.object,
+                                "Документ": objectFile,
+                                "Сессия": self.currentSession.id if self.currentSession else None,
+                            }
+                        )
+                        return True
+                self.collector.log(
+                    self.systemName,
+                    self.systemVersion,
+                    f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.surname} "
+                    f"попытал{'ся' if self.currentSession.loginData_user.gender else 'ась'} получить доступ к базовой "
+                    f"информации об объекте SCP-{objectFile.object.id}",
+                    f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.name} "
+                    f"{self.currentSession.loginData_user.surname} "
+                    f"запросил{'' if self.currentSession.loginData_user.gender else 'а'} доступ к материалам, "
+                    f"содержащим базовую информацию об объекте SCP-{objectFile.object.id} (\"{objectFile.name}\"). "
+                    f"Доступ не был предоставлен.",
+                    optionalFields=
+                    {
+                        "Сотрудник": self.currentSession.loginData_user,
+                        "Объект": objectFile.object,
+                        "Документ": objectFile,
+                        "Сессия": self.currentSession.id if self.currentSession else None,
+                    }
+                )
                 return False
             else:
                 printError("Ваша сессия истекла или была заблокирована! Авторизуйтесь заново")
@@ -238,14 +377,50 @@ class dbController:
     # TODO: Это нужно оттестировать
     def checkAccessUserFile(
             self,
-            session: models.Session,
+            
             userFile: models.UserFile,
             fileAccessType: models.FileAccessType
     ):
         try:
-            if session.isValid:
-                if fileAccessType in self.getUserToFileAccesses(session.loginData_user, userFile):
+            if self.currentSession.isValid:
+                if fileAccessType in self.getUserToFileAccesses(self.currentSession.loginData_user, userFile):
+                    self.collector.log(
+                        self.systemName,
+                        self.systemVersion,
+                        f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.surname} "
+                        f"получил{'' if self.currentSession.loginData_user.gender else 'а'} доступ к документу "
+                        f"\"{userFile}\" ({fileAccessType})",
+                        f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.name} "
+                        f"{self.currentSession.loginData_user.surname} "
+                        f"запросил{'' if self.currentSession.loginData_user.gender else 'а'} доступ ({fileAccessType}) "
+                        f"к документу \"{userFile}\" засекреченного по уровню допуска {userFile.clearance}. "
+                        f"Доступ был предоставлен.",
+                        optionalFields=
+                        {
+                            "Сотрудник": self.currentSession.loginData_user,
+                            "Документ": userFile,
+                            "Сессия": self.currentSession.id if self.currentSession else None,
+                        }
+                    )
                     return True
+                self.collector.log(
+                    self.systemName,
+                    self.systemVersion,
+                    f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.surname} "
+                    f"попытал{'ся' if self.currentSession.loginData_user.gender else 'ась'} доступ к документу "
+                    f"\"{userFile}\" ({fileAccessType})",
+                    f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.name} "
+                    f"{self.currentSession.loginData_user.surname} "
+                    f"запросил{'' if self.currentSession.loginData_user.gender else 'а'} доступ ({fileAccessType}) "
+                    f"к документу \"{userFile}\" засекреченного по уровню допуска {userFile.clearance}. "
+                    f"Доступ не был предоставлен.",
+                    optionalFields=
+                    {
+                        "Сотрудник": self.currentSession.loginData_user,
+                        "Документ": userFile,
+                        "Сессия": self.currentSession.id if self.currentSession else None,
+                    }
+                )
                 return False
             else:
                 printError("Ваша сессия истекла или была заблокирована! Авторизуйтесь заново")
@@ -254,14 +429,51 @@ class dbController:
             self.collector.logException(exception, self.systemName, self.systemVersion)
             return False
 
-    def checkAccessSystem(self, session: models.Session, system: models.System):
+    def checkAccessSystem(self, system: str or models.System):
         try:
             if isinstance(system, str):
                 system = self.fetchRow(models.System, name=system).first()
             if system:
-                if session.isValid:
-                    if session.loginData_user.systemaccesses.filter_by(system=system):
+                if self.currentSession.isValid:
+                    access = self.currentSession.loginData_user.systemaccesses.filter_by(system=system)
+                    if access:
+                        self.collector.log(
+                            self.systemName,
+                            self.systemVersion,
+                            f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.surname} "
+                            f"получил{'' if self.currentSession.loginData_user.gender else 'а'} доступ к системе "
+                            f"\"{system}\"",
+                            f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.name} "
+                            f"{self.currentSession.loginData_user.surname} "
+                            f"запросил{'' if self.currentSession.loginData_user.gender else 'а'} доступ к системе "
+                            f"\"{system}\". Доступ был предоставлен с правами группы "
+                            f"{access.first().systemAccessRole}.",
+                            optionalFields=
+                            {
+                                "Сотрудник": self.currentSession.loginData_user,
+                                "Система": system,
+                                "Доступ": access.first(),
+                                "Сессия": self.currentSession.id if self.currentSession else None,
+                            }
+                        )
                         return True
+                    self.collector.log(
+                        self.systemName,
+                        self.systemVersion,
+                        f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.surname} "
+                        f"попытал{'ся' if self.currentSession.loginData_user.gender else 'ась'} получить доступ к "
+                        f"системе \"{system}\"",
+                        f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.name} "
+                        f"{self.currentSession.loginData_user.surname} "
+                        f"запросил{'' if self.currentSession.loginData_user.gender else 'а'} доступ к системе "
+                        f"\"{system}\". Доступ не был предоставлен.",
+                        optionalFields=
+                        {
+                            "Сотрудник": self.currentSession.loginData_user,
+                            "Система": system,
+                            "Сессия": self.currentSession.id if self.currentSession else None,
+                        }
+                    )
                     return False
                 else:
                     printError("Ваша сессия истекла или была заблокирована! Авторизуйтесь заново")
