@@ -46,22 +46,26 @@ class dbController:
             if loginAttemptOutcome:
                 if userData.status.name == "Active":
                     if not userData.isExpired:
-                        if not userData.sessions.filter_by(
-                                accessStatus=self.fetchRow(models.AccessStatus, name="Active").first(),
-                                isExpired=False
-                        ).count():
-                            session = models.Session(
-                                id=str(uuid.uuid4()),
-                                accessStatus=self.fetchRow(models.AccessStatus, name="Active").first(),
-                                loginData_user=userData
-                            )
-                            self.addRow(session)
-                            self.currentSession = session
+                        if not userData.sessions.filter_by(system=self.systemName, isValid=True).count():
+                            if self.checkAccessSystem(self.systemName):
+                                session = models.Session(
+                                    id=str(uuid.uuid4()),
+                                    accessStatus=self.fetchRow(models.AccessStatus, name="Active").first(),
+                                    loginData_user=userData
+                                )
+                                self.addRow(session)
+                                self.currentSession = session
 
-                            gLibs.cls()
-                            print(f"Добро пожаловать, {userData.name} {userData.surname}. "
-                                  f"Фонд желает вам продуктивной работы.")
-
+                                gLibs.cls()
+                                print(f"Добро пожаловать, {userData.name} {userData.surname}. "
+                                      f"Фонд желает вам продуктивной работы.")
+                            else:
+                                errorMessage = "У вас нет доступа к данной системе.\nЕсли вы считаете, что произошла " \
+                                               "ошибка, обратитесь к своему непосредственному руководителю. В " \
+                                               "противном случае вам настоятельно рекомендуется воздержаться от " \
+                                               "неавторизоанных попыток входа в системы Фонда, к которым вам не " \
+                                               "предоставлен доступ"
+                                printError(errorMessage)
                         else:
                             errorMessage = "У Вас уже есть активная сессия. " \
                                            "Завершите её, или при возникновении проблем, обратитесь в поддержку."
@@ -109,15 +113,28 @@ class dbController:
             if accessCard:
                 if accessCard.status.name == "Active":
                     if not accessCard.isExpired:
-                        session = models.Session(
-                            id=str(uuid.uuid4()),
-                            accessStatus=self.fetchRow(models.AccessStatus, name="Active").first(),
-                            loginData_user=accessCard.user.loginData.first()
-                        )
-                        self.addRow(session)
-                        self.currentSession = session
-                        print(f"Добро пожаловать, {accessCard.user.name} {accessCard.user.surname}. "
-                              f"Фонд желает вам продуктивной работы.")
+                        if not accessCard.user.sessions.filter_by(system=self.systemName, isValid=True).count():
+                            if self.checkAccessSystem(self.systemName):
+                                session = models.Session(
+                                    id=str(uuid.uuid4()),
+                                    accessStatus=self.fetchRow(models.AccessStatus, name="Active").first(),
+                                    loginData_user=accessCard.user.loginData.first()
+                                )
+                                self.addRow(session)
+                                self.currentSession = session
+                                print(f"Добро пожаловать, {accessCard.user.name} {accessCard.user.surname}. "
+                                      f"Фонд желает вам продуктивной работы.")
+                            else:
+                                errorMessage = "У вас нет доступа к данной системе.\nЕсли вы считаете, что произошла " \
+                                               "ошибка, обратитесь к своему непосредственному руководителю. В " \
+                                               "противном случае вам настоятельно рекомендуется воздержаться от " \
+                                               "неавторизоанных попыток входа в системы Фонда, к которым вам не " \
+                                               "предоставлен доступ"
+                                printError(errorMessage)
+                        else:
+                            errorMessage = "У Вас уже есть активная сессия. " \
+                                           "Завершите её, или при возникновении проблем, обратитесь в поддержку."
+                            printError(errorMessage)
                     else:
                         errorMessage = "Срок действия карты истёк. Обратитесь в канцелярию."
                         printError(errorMessage)

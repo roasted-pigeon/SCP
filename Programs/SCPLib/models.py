@@ -534,9 +534,11 @@ class Session(Base):
     expire = Column(DateTime(timezone=True), nullable=False, server_default=text("datetime('now', '+2 hour')"))
     loginData_user_employeeClass_id = Column(Integer, nullable=False)
     loginData_user_id = Column(Integer, nullable=False)
+    systems_id = Column(ForeignKey('system.id'), nullable=False)
 
     accessStatus = relationship('AccessStatus', backref=backref("sessions", lazy='dynamic'))
     loginData_user = relationship('LoginData', backref=backref("sessions", lazy='dynamic'))
+    system = relationship('System', backref=backref("sessions", lazy='dynamic'))
 
     def __str__(self):
         str = f"[{self.datetime}] {self.loginData_user}: {self.id}"
