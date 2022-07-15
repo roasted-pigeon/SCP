@@ -2,6 +2,7 @@ import sys
 from prettytable import PrettyTable
 from colorama import Fore as FColor, Back as BColor, Style
 
+
 def get_help():
     # Определяем твою шапку и данные.
     th = [

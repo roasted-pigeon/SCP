@@ -155,30 +155,80 @@ class dbController:
         finally:
             return self.currentSession
 
-    # TODO 1: Необходимо добавить логгирование получения всех видов доступа
+    # TODO 1: Необходимо добавить логгирование получения всех видов доступа (DONE, но нужно протестировать)
     # TODO 2: (DONE)
-    # TODO 3: Нужно подумать над тем, чтобы доступ в комнаты проверять не по сессии, а просто по карте, а саму сессию
-    #         для проерки прав создавать непосредственно внутри метода
-    def checkAccessRoom(self, room: models.Room):
+    # TODO 3: (DONE)
+    def checkAccessRoom(self, accessCard: models.AccessCard, room: models.Room):
         try:
+            self.accessCardLogin(accessCard)
             if room.roomStatus.name == "Закрыта":
                 if self.currentSession.isValid:
-                    if self.currentSession.loginData_user.userroomspecialaccesses.filter_by(room=room).count():
-                        # self.collector.log(
-                        #     self.systemName,
-                        #     self.systemVersion,
-                        #     f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.surname}
-                        #     "прошёл через двери комнаты {room}",
-                        #     f"",
-                        #     optionalFields=
-                        #     {
-                        #
-                        #     }
-                        # )
+                    URSAs = self.currentSession.loginData_user.userroomspecialaccesses.filter_by(
+                        room=room,
+                        isExpired=False
+                    )
+                    if URSAs.count():
+                        self.collector.log(
+                            self.systemName,
+                            self.systemVersion,
+                            f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.surname}"
+                            f"прош{'ёл' if self.currentSession.loginData_user.gender else 'ла'} через двери комнаты "
+                            f"{room}, используя ID-карту {accessCard}.",
+                            f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.name} "
+                            f"{self.currentSession.loginData_user.surname} "
+                            f"приложил{'' if self.currentSession.loginData_user.gender else 'а'} свою ID-карту для "
+                            f"открытия дверей комнаты {room}. Доступ был предоставлен на основании наличия спеиального "
+                            f"допуска.",
+                            optionalFields=
+                            {
+                                "Сотрудник": self.currentSession.loginData_user,
+                                "Комната": room,
+                                "ID-карта": accessCard,
+                                "Специальный допуск": URSAs.first(),
+                                "Сессия": self.currentSession.id if self.currentSession else None
+                            }
+                        )
                         return True
                     if not room.specialAccessRequired:
                         if self.currentSession.loginData_user.clearance >= room.clearance:
+                            self.collector.log(
+                                self.systemName,
+                                self.systemVersion,
+                                f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.surname}"
+                                f"прош{'ёл' if self.currentSession.loginData_user.gender else 'ла'} через двери "
+                                f"комнаты {room}, используя ID-карту {accessCard}.",
+                                f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.name} "
+                                f"{self.currentSession.loginData_user.surname} "
+                                f"приложил{'' if self.currentSession.loginData_user.gender else 'а'} свою ID-карту для "
+                                f"открытия дверей комнаты {room}. Доступ был предоставлен на основании наличия "
+                                f"необходимого уровня допуска. ",
+                                optionalFields=
+                                {
+                                    "Сотрудник": self.currentSession.loginData_user,
+                                    "Комната": room,
+                                    "ID-карта": accessCard,
+                                    "Сессия": self.currentSession.id if self.currentSession else None
+                                }
+                            )
                             return True
+                    self.collector.log(
+                        self.systemName,
+                        self.systemVersion,
+                        f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.surname}"
+                        f"попытал{'ся' if self.currentSession.loginData_user.gender else 'ась'} пройти через двери "
+                        f"комнаты {room}, используя ID-карту {accessCard}.",
+                        f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.name} "
+                        f"{self.currentSession.loginData_user.surname} "
+                        f"приложил{'' if self.currentSession.loginData_user.gender else 'а'} свою ID-карту для "
+                        f"открытия дверей комнаты {room}. Доступ не был предоставлен",
+                        optionalFields=
+                        {
+                            "Сотрудник": self.currentSession.loginData_user,
+                            "Комната": room,
+                            "ID-карта": accessCard,
+                            "Сессия": self.currentSession.id if self.currentSession else None
+                        }
+                    )
                     return False
                 else:
                     printError("Ваша сессия истекла или была заблокирована! Авторизуйтесь заново")
@@ -186,24 +236,105 @@ class dbController:
             elif room.roomStatus.name == "Открыта":
                 return True
             elif room.roomStatus.name == "Изолирована":
+                self.collector.log(
+                    self.systemName,
+                    self.systemVersion,
+                    f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.surname}"
+                    f"попытал{'ся' if self.currentSession.loginData_user.gender else 'ась'} пройти через двери "
+                    f"комнаты {room}, в которой введён режим изоляции, используя ID-карту {accessCard}.",
+                    f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.name} "
+                    f"{self.currentSession.loginData_user.surname} "
+                    f"приложил{'' if self.currentSession.loginData_user.gender else 'а'} свою ID-карту для "
+                    f"открытия дверей комнаты {room}. Доступ не был предоставлен, так как в комнате введён режим "
+                    f"изоляции",
+                    optionalFields=
+                    {
+                        "Сотрудник": self.currentSession.loginData_user,
+                        "Комната": room,
+                        "ID-карта": accessCard,
+                        "Сессия": self.currentSession.id if self.currentSession else None
+                    }
+                )
                 return False
             else:
                 raise Exception("Неизвестный статус комнаты!")
         except Exception as exception:
             self.collector.logException(exception, self.systemName, self.systemVersion)
             return False
+        finally:
+            self.closeCurrentSession()
 
-    def checkAccessSection(self, facilitySection: models.FacilitySection):
+    def checkAccessSection(self, accessCard: models.AccessCard, facilitySection: models.FacilitySection):
         try:
+            self.accessCardLogin(accessCard)
             if facilitySection.roomStatus.name == "Закрыта":
                 if self.currentSession.isValid:
-                    if self.currentSession.loginData_user.usersectionspecialaccesses.filter_by(
-                            facilitySection=facilitySection
-                    ).count():
+                    USSAs = self.currentSession.loginData_user.usersectionspecialaccesses.filter_by(
+                        facilitySection=facilitySection,
+                        isExpired=False
+                    )
+                    if USSAs.count():
+                        self.collector.log(
+                            self.systemName,
+                            self.systemVersion,
+                            f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.surname}"
+                            f"прош{'ёл' if self.currentSession.loginData_user.gender else 'ла'} через двери на границе "
+                            f"секции {facilitySection}, используя ID-карту {accessCard}.",
+                            f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.name} "
+                            f"{self.currentSession.loginData_user.surname} "
+                            f"приложил{'' if self.currentSession.loginData_user.gender else 'а'} свою ID-карту для "
+                            f"открытия дверей на границах секции {facilitySection}. Доступ был предоставлен на "
+                            f"основании наличия спеиального допуска.",
+                            optionalFields=
+                            {
+                                "Сотрудник": self.currentSession.loginData_user,
+                                "Секция": facilitySection,
+                                "ID-карта": accessCard,
+                                "Специальный допуск": USSAs.first(),
+                                "Сессия": self.currentSession.id if self.currentSession else None
+                            }
+                        )
                         return True
                     if not facilitySection.specialAccessRequired:
                         if self.currentSession.loginData_user.clearance >= facilitySection.clearance:
+                            self.collector.log(
+                                self.systemName,
+                                self.systemVersion,
+                                f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.surname}"
+                                f"прош{'ёл' if self.currentSession.loginData_user.gender else 'ла'} через двери на"
+                                f"границе секции {facilitySection}, используя ID-карту {accessCard}.",
+                                f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.name} "
+                                f"{self.currentSession.loginData_user.surname} "
+                                f"приложил{'' if self.currentSession.loginData_user.gender else 'а'} свою ID-карту для "
+                                f"открытия дверей на границах секции {facilitySection}. Доступ был предоставлен на "
+                                f"основании наличия необходимого уровня допуска.",
+                                optionalFields=
+                                {
+                                    "Сотрудник": self.currentSession.loginData_user,
+                                    "Секция": facilitySection,
+                                    "ID-карта": accessCard,
+                                    "Сессия": self.currentSession.id if self.currentSession else None
+                                }
+                            )
                             return True
+                    self.collector.log(
+                        self.systemName,
+                        self.systemVersion,
+                        f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.surname}"
+                        f"попытал{'ся' if self.currentSession.loginData_user.gender else 'ась'} пройти через двери на "
+                        f"границе секции {facilitySection}, используя ID-карту {accessCard}.",
+                        f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.name} "
+                        f"{self.currentSession.loginData_user.surname} "
+                        f"приложил{'' if self.currentSession.loginData_user.gender else 'а'} свою ID-карту для "
+                        f"открытия дверей на границе секции {facilitySection}. Доступ не был предоставлен",
+                        optionalFields=
+                        {
+                            "Сотрудник": self.currentSession.loginData_user,
+                            "Секция": facilitySection,
+                            "ID-карта": accessCard,
+                            "Сессия": self.currentSession.id if self.currentSession else None
+                        }
+                    )
                     return False
                 else:
                     printError("Ваша сессия истекла или была заблокирована! Авторизуйтесь заново")
@@ -211,18 +342,42 @@ class dbController:
             elif facilitySection.roomStatus.name == "Открыта":
                 return True
             elif facilitySection.roomStatus.name == "Изолирована":
+                self.collector.log(
+                    self.systemName,
+                    self.systemVersion,
+                    f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.surname}"
+                    f"попытал{'ся' if self.currentSession.loginData_user.gender else 'ась'} пройти через двери на "
+                    f"границе секции {facilitySection}, используя ID-карту {accessCard}.",
+                    f"{self.currentSession.loginData_user.job} {self.currentSession.loginData_user.name} "
+                    f"{self.currentSession.loginData_user.surname} "
+                    f"приложил{'' if self.currentSession.loginData_user.gender else 'а'} свою ID-карту для "
+                    f"открытия дверей на границе секции {facilitySection}. Доступ не был предоставлен, так как в "
+                    f"секции введён режим изоляции",
+                    optionalFields=
+                    {
+                        "Сотрудник": self.currentSession.loginData_user,
+                        "Секция": facilitySection,
+                        "ID-карта": accessCard,
+                        "Сессия": self.currentSession.id if self.currentSession else None
+                    }
+                )
                 return False
             else:
-                raise Exception("Неизвестный статус сектора!")
+                raise Exception("Неизвестный статус комнаты!")
         except Exception as exception:
             self.collector.logException(exception, self.systemName, self.systemVersion)
             return False
+        finally:
+            self.closeCurrentSession()
 
     def checkAccessObject(self, object: models.Object):
         try:
-            UOSAs = self.currentSession.loginData_user.userobjectspecialaccesses.filter_by(object=object).orderby(
-                        desc(models.UserObjectSpecialAccess.clearance_id)
-                )
+            UOSAs = self.currentSession.loginData_user.userobjectspecialaccesses.filter_by(
+                object=object,
+                isExpired=False
+            ).orderby(
+                desc(models.UserObjectSpecialAccess.clearance_id)
+            )
             if self.currentSession.isValid:
                 if UOSAs.count():
                     self.collector.log(
@@ -241,7 +396,7 @@ class dbController:
                             "Сотрудник": self.currentSession.loginData_user,
                             "Объект": object,
                             "Специальный допуск": UOSAs.first(),
-                            "Сессия": self.currentSession.id if self.currentSession else None,
+                            "Сессия": self.currentSession.id if self.currentSession else None
                         }
                     )
                     return True
@@ -263,7 +418,7 @@ class dbController:
                             {
                                 "Сотрудник": self.currentSession.loginData_user,
                                 "Объект": object,
-                                "Сессия": self.currentSession.id if self.currentSession else None,
+                                "Сессия": self.currentSession.id if self.currentSession else None
                             }
                         )
                         return True
@@ -281,7 +436,7 @@ class dbController:
                     {
                         "Сотрудник": self.currentSession.loginData_user,
                         "Объект": object,
-                        "Сессия": self.currentSession.id if self.currentSession else None,
+                        "Сессия": self.currentSession.id if self.currentSession else None
                     }
                 )
                 return False
@@ -294,10 +449,12 @@ class dbController:
 
     def checkAccessObjectFile(self, objectFile: models.ObjectFile):
         try:
-            UOSAs = self.currentSession.loginData_user.userobjectspecialaccesses.filter_by(object=objectFile.object).\
-                orderby(
-                        desc(models.UserObjectSpecialAccess.clearance_id)
-                )
+            UOSAs = self.currentSession.loginData_user.userobjectspecialaccesses.filter_by(
+                object=objectFile.object,
+                isExpired=False
+            ).orderby(
+                desc(models.UserObjectSpecialAccess.clearance_id)
+            )
             clearance = objectFile.clearance if objectFile.clearance is not None else objectFile.object.clearance
             if self.currentSession.isValid:
                 if UOSAs.count():
@@ -320,7 +477,7 @@ class dbController:
                                 "Объект": objectFile.object,
                                 "Документ": objectFile,
                                 "Специальный допуск": UOSAs.first(),
-                                "Сессия": self.currentSession.id if self.currentSession else None,
+                                "Сессия": self.currentSession.id if self.currentSession else None
                             }
                         )
                         return True
@@ -343,7 +500,7 @@ class dbController:
                                 "Сотрудник": self.currentSession.loginData_user,
                                 "Объект": objectFile.object,
                                 "Документ": objectFile,
-                                "Сессия": self.currentSession.id if self.currentSession else None,
+                                "Сессия": self.currentSession.id if self.currentSession else None
                             }
                         )
                         return True
@@ -363,7 +520,7 @@ class dbController:
                         "Сотрудник": self.currentSession.loginData_user,
                         "Объект": objectFile.object,
                         "Документ": objectFile,
-                        "Сессия": self.currentSession.id if self.currentSession else None,
+                        "Сессия": self.currentSession.id if self.currentSession else None
                     }
                 )
                 return False
@@ -399,7 +556,7 @@ class dbController:
                         {
                             "Сотрудник": self.currentSession.loginData_user,
                             "Документ": userFile,
-                            "Сессия": self.currentSession.id if self.currentSession else None,
+                            "Сессия": self.currentSession.id if self.currentSession else None
                         }
                     )
                     return True
@@ -418,7 +575,7 @@ class dbController:
                     {
                         "Сотрудник": self.currentSession.loginData_user,
                         "Документ": userFile,
-                        "Сессия": self.currentSession.id if self.currentSession else None,
+                        "Сессия": self.currentSession.id if self.currentSession else None
                     }
                 )
                 return False
@@ -435,7 +592,10 @@ class dbController:
                 system = self.fetchRow(models.System, name=system).first()
             if system:
                 if self.currentSession.isValid:
-                    access = self.currentSession.loginData_user.systemaccesses.filter_by(system=system)
+                    access = self.currentSession.loginData_user.systemaccesses.filter_by(
+                        system=system,
+                        isExpired=False
+                    )
                     if access:
                         self.collector.log(
                             self.systemName,
@@ -453,7 +613,7 @@ class dbController:
                                 "Сотрудник": self.currentSession.loginData_user,
                                 "Система": system,
                                 "Доступ": access.first(),
-                                "Сессия": self.currentSession.id if self.currentSession else None,
+                                "Сессия": self.currentSession.id if self.currentSession else None
                             }
                         )
                         return True
@@ -471,7 +631,7 @@ class dbController:
                         {
                             "Сотрудник": self.currentSession.loginData_user,
                             "Система": system,
-                            "Сессия": self.currentSession.id if self.currentSession else None,
+                            "Сессия": self.currentSession.id if self.currentSession else None
                         }
                     )
                     return False
@@ -540,7 +700,10 @@ class dbController:
                     ),
                     fileRequester_id=user.fullID
                 )
-                if user.userfilespecialaccesses.filter_by(userFile=userFile).count():
+                if user.userfilespecialaccesses.filter_by(
+                        userFile=userFile,
+                        isExpired=False
+                ).count():
                     blank_accesses.union(
                         self.fetchRow(
                             models.FileAccess,
