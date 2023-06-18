@@ -65,7 +65,8 @@ if __name__ == "__main__":
         if sys.argv[1] in ("-h", "--help", "-?", "/?"):
             get_help()
         elif sys.argv[1] == "SCPLibs Debugger":
-            from SCPLib import main
+            from SCPLib import main as SCPLib
+            SCPLib.start()
     else:
         get_help()
 
