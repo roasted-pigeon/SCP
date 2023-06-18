@@ -259,35 +259,21 @@ def createGame(request):
     else:
         return redirect('login')
 
-def createGameScreen(request):
-    error=''
-    if 'user' in request.session:
-        current_user = request.session['user']
-        if request.method == 'POST':
-            form = GameCreateForm(request.POST)
-            if form.is_valid():
-                instance = form.save(commit=False)
-                try:
-                    game_record = Game.objects.create(
-                        title=instance.title,
-                        description = instance.description,
-                        creation_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        next_session_date = instance.next_session_date.strftime("%Y-%m-%d %H:%M:%S"),
-                        creator = User.objects.get(email=current_user),
-                    )
-                    game_record.save()
-                    return redirect('gameLibrary')
-                except:
-                    error = 'Incorrect data.'
-            else:
-                error = 'The input data is messed up. Check the format of input.'
-        form = GameCreateForm()
-        data = {
-            'current_user': current_user,
-            'username': User.objects.get(email=current_user).first_name + " " + User.objects.get(email=current_user).last_name,
-            'form': form,
-            'error': error
-        }
-        return render(request, 'main/gameCreate.html', data)
-    else:
-        return redirect('login')
+def generateTable(width, height):
+    table_html = "<table class='gameField'>"
+    for i in range(height):
+        table_html += "<tr>"
+        for j in range(width):
+            table_html += "<td class='gameCell'></td>"
+        table_html += "</tr>"
+    table_html += "</table>"
+    return table_html
+
+
+def tableGenerator(request):
+    if request.method == 'POST':
+        width = int(request.POST.get('width'))
+        height = int(request.POST.get('height'))
+        table_html = generateTable(width, height)
+        return render(request, 'main/gameScreen.html', {'table_html': table_html})
+    return render(request, 'main/createGameScreen.html')

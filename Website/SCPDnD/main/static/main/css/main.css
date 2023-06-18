@@ -129,3 +129,19 @@ form {
   width: 400px;
 }
 
+table.gameField {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-collapse: collapse;
+}
+
+td.gameCell {
+    background-color: white;
+    width: 100px;
+    min-width: 100px;
+    height: 100px;
+    min-height: 100px;
+    border: 1px solid black;
+}
+
