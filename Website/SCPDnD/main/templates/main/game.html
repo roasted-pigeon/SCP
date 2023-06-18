@@ -24,7 +24,7 @@ SCP DnD
     <div class="container">
         <h1>SCP Foundation RPG Game Board</h1>
         <div class="form-group">
-            <label for="grid-size">Размер сетки:</label>
+            <label for="grid-size">Grid size:</label>
             <select id="grid-size" class="form-control">
                 <option value="20x20">20x20</option>
                 <option value="30x30">30x30</option>
@@ -32,33 +32,33 @@ SCP DnD
             </select>
         </div>
         <div class="form-group">
-            <label for="num-rows">Количество строк:</label>
+            <label for="num-rows">Number of rows:</label>
             <input type="number" id="num-rows" class="form-control" min="1" max="100" value="20">
         </div>
         <div class="form-group">
-            <label for="num-cols">Количество столбцов:</label>
+            <label for="num-cols">Number of columns:</label>
             <input type="number" id="num-cols" class="form-control" min="1" max="100" value="20">
         </div>
         <div class="form-group">
-            <label for="fill-color">Цвет заполнения:</label>
+            <label for="fill-color">Color:</label>
             <input type="color" id="fill-color" class="form-control" value="#0000ff">
         </div>
         <div class="form-group">
-            <label for="brush-size">Размер кисти: <span id="brush-size-display">1</span> пиксель</label>
+            <label for="brush-size">Brush size: <span id="brush-size-display">1</span> pixel</label>
             <input type="range" id="brush-size" class="form-control-range" min="1" max="20" value="1">
         </div>
         <div>
             <input type="radio" id="draw-mode" name="mode" value="draw" checked>
-            <label for="draw-mode">Режим рисования</label>
+            <label for="draw-mode">Draw mode</label>
         </div>
         <div>
             <input type="radio" id="fill-mode" name="mode" value="fill">
-            <label for="fill-mode">Режим заполнения</label>
+            <label for="fill-mode">Fill mode</label>
         </div>
         <canvas id="game-canvas"></canvas>
-        <button id="clear-button" class="btn btn-danger mt-3">Очистить</button>
-        <button id="save-button" class="btn btn-primary mt-3">Сохранить</button>
-        <button id="load-button" class="btn btn-success mt-3">Загрузить</button>
+        <button id="clear-button" class="btn btn-danger mt-3">Clear</button>
+        <button id="save-button" class="btn btn-primary mt-3">Save</button>
+        <button id="load-button" class="btn btn-success mt-3">Load</button>
     </div>
 
     <script>
@@ -66,15 +66,15 @@ SCP DnD
         window.onload = function() {
             const canvas = document.getElementById('game-canvas');
             const context = canvas.getContext('2d');
-            let cellSize = 1; // Размер клетки в пикселях
-            let bigCellSize = 20; // Размер клетки в пикселях
+            const cellSize = 1; // Cell size in pixels for small table (used for Draw mode)
+            let bigCellSize = 20; // Cell size in pixels for big table (used for Fill mode)
             let numRows = document.getElementById('num-rows').value = {{ height }};
             let numCols = document.getElementById('num-cols').value = {{ width }};
             let brushSize = parseInt(document.getElementById('brush-size').value);
-            let drawMode = true; // Флаг режима рисования (true - режим рисования, false - режим заполнения)
-            let savedState = null; // Сохраненное состояние холста
+            let drawMode = true; // Draw mode switch (true - draw mode, false - fill mode)
+            let savedState = null; // Saved canvas state
 
-            // Функция для изменения размера сетки
+            // Function that changes the grid size
             function changeGridSize() {
                 let newCellSize = parseInt(document.getElementById('grid-size').value.split('x')[0]);
                 if (newCellSize !== bigCellSize) {
@@ -87,16 +87,16 @@ SCP DnD
 
             document.getElementById('grid-size').addEventListener('change', changeGridSize);
 
-            let fillColor = document.getElementById('fill-color').value; // Цвет заполнения по умолчанию
+            let fillColor = document.getElementById('fill-color').value; // Default fill color
 
-            // Функция для изменения цвета заполнения
+            // Function changing fill color
             function changeFillColor() {
                 fillColor = document.getElementById('fill-color').value;
             }
 
             document.getElementById('fill-color').addEventListener('change', changeFillColor);
 
-            // Функция для изменения количества строк
+            // Function that changes the row count
             function changeNumRows() {
                 const newNumRows = parseInt(document.getElementById('num-rows').value);
                 if (newNumRows !== numRows) {
@@ -108,7 +108,7 @@ SCP DnD
 
             document.getElementById('num-rows').addEventListener('change', changeNumRows);
 
-            // Функция для изменения количества столбцов
+            // Function that changes the column count
             function changeNumCols() {
                 const newNumCols = parseInt(document.getElementById('num-cols').value);
                 if (newNumCols !== numCols) {
@@ -120,7 +120,7 @@ SCP DnD
 
             document.getElementById('num-cols').addEventListener('change', changeNumCols);
 
-            // Функция для изменения размера кисти
+            // Function that changes the brush size
             function changeBrushSize() {
                 brushSize = parseInt(document.getElementById('brush-size').value);
                 document.getElementById('brush-size-display').textContent = brushSize;
@@ -128,7 +128,7 @@ SCP DnD
 
             document.getElementById('brush-size').addEventListener('input', changeBrushSize);
 
-            // Функция для переключения режимов рисования
+            // Function that changes the brush mode
             function toggleMode(event) {
                 drawMode = event.target.value !== 'fill';
             }
@@ -137,15 +137,15 @@ SCP DnD
                 element.addEventListener('change', toggleMode);
             });
 
-            // Установка размеров холста
+            // Setting canvas size
             canvas.width = bigCellSize * numCols;
             canvas.height = bigCellSize * numRows;
 
             let isDrawing = false;
 
-            // Функция для рисования следа мыши
+            // Drawing the trail of the mouse depending on drawMode
             function drawTrail(x, y) {
-                const halfBrushSize = brushSize / 2; // Половина размера кисти
+                const halfBrushSize = brushSize / 2; // Half of brush size
                 context.fillStyle = fillColor;
 
                 if (drawMode) {
@@ -157,7 +157,7 @@ SCP DnD
                 }
             }
 
-            // Функция для определения координат клетки на основе позиции мыши
+            // Function returning the coordinates of cell depending on mouseX and mouseY
             function getCellCoordinates(mouseX, mouseY) {
                 const rect = canvas.getBoundingClientRect();
                 const col = Math.floor((mouseX - rect.left) / cellSize);
@@ -167,14 +167,14 @@ SCP DnD
                 return { x, y, row, col };
             }
 
-            // Обработчик события нажатия кнопки мыши
+            // Listener of mousedown event
             canvas.addEventListener('mousedown', function(event) {
                 isDrawing = true;
                 const { x, y } = getCellCoordinates(event.clientX, event.clientY);
                 drawTrail(x, y);
             });
 
-            // Обработчик события перемещения мыши
+            // Listener of mousemove event
             canvas.addEventListener('mousemove', function(event) {
                 if (isDrawing) {
                     const { x, y } = getCellCoordinates(event.clientX, event.clientY);
@@ -182,18 +182,18 @@ SCP DnD
                 }
             });
 
-            // Обработчик события отпускания кнопки мыши
+            // Listener of mouseup event
             canvas.addEventListener('mouseup', function(event) {
                 isDrawing = false;
             });
 
-            // Функция для очистки холста
+            // Function for clearing the canvas
             function clearCanvas() {
                 context.clearRect(0, 0, canvas.width, canvas.height);
                 drawGrid();
             }
 
-            // Функция для рисования сетки
+            // Function responsible for drawing the grid
             function drawGrid() {
                 context.beginPath();
                 for (let x = 0; x <= canvas.width; x += bigCellSize) {
@@ -208,14 +208,14 @@ SCP DnD
                 context.stroke();
             }
 
-            // Функция для сохранения состояния холста
+            // Function responsible for saving the canvas
             function saveCanvasState() {
                 savedState = context.getImageData(0, 0, canvas.width, canvas.height);
             }
 
             document.getElementById('save-button').addEventListener('click', saveCanvasState);
 
-            // Функция для загрузки сохраненного состояния холста
+            // Function responsible for loading the canvas
             function loadCanvasState() {
                 if (savedState) {
                     context.putImageData(savedState, 0, 0);
@@ -224,7 +224,7 @@ SCP DnD
 
             document.getElementById('load-button').addEventListener('click', loadCanvasState);
 
-            // Функция для инициализации игрового поля
+            // Function responsible for initializing the gameboard
             function initGameBoard() {
                 changeGridSize();
                 clearCanvas();
