@@ -43,6 +43,18 @@ SCP DnD
             <label for="fill-color">Цвет заполнения:</label>
             <input type="color" id="fill-color" class="form-control" value="#0000ff">
         </div>
+        <div class="form-group">
+            <label for="brush-size">Размер кисти: <span id="brush-size-display">1</span> пиксель</label>
+            <input type="range" id="brush-size" class="form-control-range" min="1" max="20" value="1">
+        </div>
+        <div>
+            <input type="radio" id="draw-mode" name="mode" value="draw" checked>
+            <label for="draw-mode">Режим рисования</label>
+        </div>
+        <div>
+            <input type="radio" id="fill-mode" name="mode" value="fill">
+            <label for="fill-mode">Режим заполнения</label>
+        </div>
         <canvas id="game-canvas"></canvas>
         <button id="clear-button" class="btn btn-danger mt-3">Очистить</button>
     </div>
@@ -52,17 +64,20 @@ SCP DnD
         window.onload = function() {
             const canvas = document.getElementById('game-canvas');
             const context = canvas.getContext('2d');
-            let cellSize = 20; // Размер клетки в пикселях
+            let cellSize = 1; // Размер клетки в пикселях
+            let bigCellSize = 20; // Размер клетки в пикселях
             let numRows = document.getElementById('num-rows').value = {{ height }};
             let numCols = document.getElementById('num-cols').value = {{ width }};
+            let brushSize = parseInt(document.getElementById('brush-size').value);
+            let drawMode = true; // Флаг режима рисования (true - режим рисования, false - режим заполнения)
 
             // Функция для изменения размера сетки
             function changeGridSize() {
                 let newCellSize = parseInt(document.getElementById('grid-size').value.split('x')[0]);
-                if (newCellSize !== cellSize) {
-                    cellSize = newCellSize;
-                    canvas.width = cellSize * numCols;
-                    canvas.height = cellSize * numRows;
+                if (newCellSize !== bigCellSize) {
+                    bigCellSize = newCellSize;
+                    canvas.width = bigCellSize * numCols;
+                    canvas.height = bigCellSize * numRows;
                     clearCanvas();
                 }
             }
@@ -83,7 +98,7 @@ SCP DnD
                 const newNumRows = parseInt(document.getElementById('num-rows').value);
                 if (newNumRows !== numRows) {
                     numRows = newNumRows;
-                    canvas.height = cellSize * numRows;
+                    canvas.height = bigCellSize * numRows;
                     clearCanvas();
                 }
             }
@@ -95,23 +110,52 @@ SCP DnD
                 const newNumCols = parseInt(document.getElementById('num-cols').value);
                 if (newNumCols !== numCols) {
                     numCols = newNumCols;
-                    canvas.width = cellSize * numCols;
+                    canvas.width = bigCellSize * numCols;
                     clearCanvas();
                 }
             }
 
             document.getElementById('num-cols').addEventListener('change', changeNumCols);
 
+            // Функция для изменения размера кисти
+            function changeBrushSize() {
+                brushSize = parseInt(document.getElementById('brush-size').value);
+                document.getElementById('brush-size-display').textContent = brushSize;
+            }
+
+            document.getElementById('brush-size').addEventListener('input', changeBrushSize);
+
+            // Функция для переключения режимов рисования
+            function toggleMode(event) {
+                if (event.target.value === 'fill') {
+                    drawMode = false;
+                } else {
+                    drawMode = true;
+                }
+            }
+
+            document.getElementsByName('mode').forEach(function(element) {
+                element.addEventListener('change', toggleMode);
+            });
+
             // Установка размеров холста
-            canvas.width = cellSize * numCols;
-            canvas.height = cellSize * numRows;
+            canvas.width = bigCellSize * numCols;
+            canvas.height = bigCellSize * numRows;
 
             let isDrawing = false;
 
             // Функция для рисования следа мыши
             function drawTrail(x, y) {
+                const halfBrushSize = brushSize / 2; // Половина размера кисти
                 context.fillStyle = fillColor;
-                context.fillRect(x, y, cellSize, cellSize);
+
+                if (drawMode) {
+                    context.fillRect(x - halfBrushSize, y - halfBrushSize, brushSize, brushSize);
+                } else {
+                    const col = Math.floor(x / bigCellSize);
+                    const row = Math.floor(y / bigCellSize);
+                    context.fillRect(col * bigCellSize, row * bigCellSize, bigCellSize, bigCellSize);
+                }
             }
 
             // Функция для определения координат клетки на основе позиции мыши
@@ -119,8 +163,8 @@ SCP DnD
                 const rect = canvas.getBoundingClientRect();
                 const col = Math.floor((mouseX - rect.left) / cellSize);
                 const row = Math.floor((mouseY - rect.top) / cellSize);
-                const x = col * cellSize;
-                const y = row * cellSize;
+                const x = col * cellSize{% comment %} + cellSize / 2{% endcomment %};
+                const y = row * cellSize{% comment %} + cellSize / 2{% endcomment %};
                 return { x, y, row, col };
             }
 
@@ -153,31 +197,28 @@ SCP DnD
             // Функция для рисования сетки
             function drawGrid() {
                 context.beginPath();
-                for (let x = 0; x <= canvas.width; x += cellSize) {
+                for (let x = 0; x <= canvas.width; x += bigCellSize) {
                     context.moveTo(x, 0);
                     context.lineTo(x, canvas.height);
                 }
-                for (let y = 0; y <= canvas.height; y += cellSize) {
+                for (let y = 0; y <= canvas.height; y += bigCellSize) {
                     context.moveTo(0, y);
                     context.lineTo(canvas.width, y);
                 }
-                context.strokeStyle = '#ccc';
+                context.strokeStyle = '#ddd';
                 context.stroke();
             }
 
-            // Дополнительный код для измерения расстояния между объектами
-            canvas.addEventListener('click', function(event) {
-                const { x, y, row, col } = getCellCoordinates(event.clientX, event.clientY);
-                // Здесь можно обработать клик и произвести нужные действия, например, измерение расстояния
-            });
-
-            // Обработчик события нажатия на кнопку "Очистить"
-            document.getElementById('clear-button').addEventListener('click', function() {
+            // Функция для инициализации игрового поля
+            function initGameBoard() {
+                changeGridSize();
                 clearCanvas();
-            });
+                drawGrid();
+            }
 
-            // Рисуем сетку после загрузки страницы
-            drawGrid();
+            document.getElementById('clear-button').addEventListener('click', clearCanvas);
+
+            initGameBoard();
         };
     </script>
 {% endblock %}
