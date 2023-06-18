@@ -7,9 +7,18 @@ SCP DnD
 
 {% block body %}
     <style>
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh; /* Высота контейнера будет занимать всю доступную высоту */
+        }
+
         #game-canvas {
             border: 1px solid #000;
             cursor: crosshair;
+            margin-top: 20px; /* Добавляем небольшое отступание сверху для визуального разделения */
         }
     </style>
     <div class="container">
