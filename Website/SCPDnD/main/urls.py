@@ -18,5 +18,6 @@ urlpatterns = [
     path('documents/upload', views.uploadDocument, name='documentUpload'),
     path('games', views.showGames, name='gameLibrary'),
     path('games/create', views.createGame, name='gameCreate'),
-    path('createGameScreen', views.tableGenerator, name='gameScreenCreate')
+    path('createGameScreen', views.tableGenerator, name='gameScreenCreate'),
+    path('game', views.game, name='game')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

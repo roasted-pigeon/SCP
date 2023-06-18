@@ -277,3 +277,6 @@ def tableGenerator(request):
         table_html = generateTable(width, height)
         return render(request, 'main/gameScreen.html', {'table_html': table_html})
     return render(request, 'main/createGameScreen.html')
+
+def game(request):
+    return render(request, 'main/game.html')
