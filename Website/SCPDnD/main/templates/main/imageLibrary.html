@@ -1,0 +1,18 @@
+{% extends 'main/mainPage.html' %}
+
+{% block content%}
+<div class="upload-header">
+  <h1>Image Library</h1>
+</div>
+  <div class="grid-container">
+    {% for image in images %}
+    <div class="grid-item">
+      <img src="{{ image.file_link }}" alt="{{ image.name }}" width="200">
+      <p>{{ image.name }}</p>
+    </div>
+    {% endfor %}
+  </div>
+<div class="upload-link">
+  <a href="{% url 'imageUpload' %}">Upload Image</a>
+</div>
+{% endblock %}

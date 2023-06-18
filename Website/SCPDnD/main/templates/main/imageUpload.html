@@ -1,0 +1,12 @@
+{% extends 'main/mainPage.html' %}
+
+{% block content%}
+<div class="upload-header">
+  <h1>Upload Image</h1>
+</div>
+  <form method="POST" enctype="multipart/form-data" action="{% url 'imageUpload' %}">
+    {% csrf_token %}
+    <input type="file" name="image">
+    <button type="submit">Upload</button>
+  </form>
+{% endblock %}

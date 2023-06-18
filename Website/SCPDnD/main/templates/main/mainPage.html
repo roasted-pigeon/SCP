@@ -1,0 +1,41 @@
+{% extends 'main/layout.html' %}
+{% load static %}
+
+{% block title %}
+SCP DnD
+{% endblock %}
+
+{% block body %}
+<header>
+	<img src="{% static 'main/img/logoWhite.png'%}" alt="SCP Foundation Logo" width="100" height="100">
+	<select class="form-select-sm" onchange="location = this.value;">
+		<option selected disabled hidden>{{username}}</option>
+		<option value="{% url 'account' %}">My account</option>
+		<option value="{% url 'logout' %}">Log out</option>
+	</select>
+	<ul>
+		<li>
+			<a href="{% url 'main' %}">Home page</a>
+		</li>
+		<li>
+			<select class="form-select-sm" onchange="location = this.value;">
+				<option selected disabled hidden>Games</option>
+				<option value="{% url 'gameLibrary' %}">My games</option>
+				<option value="{% url 'gameCreate' %}">Create a game</option>
+				<option href="">Find a group</option>
+			</select>
+		</li>
+		<li>
+			<select class="form-select-sm" onchange="location = this.value;">
+				<option selected disabled hidden>Tools</option>
+				<option href="">Character vault</option>
+				<option value="{% url 'audioLibrary' %}">Audio library</option>
+				<option value="{% url 'imageLibrary' %}">Image library</option>
+				<option value="{% url 'documentLibrary' %}">Document library</option>
+			</select>
+		</li>
+	</ul>
+</header>
+{% block content %}
+{% endblock %}
+{% endblock %}

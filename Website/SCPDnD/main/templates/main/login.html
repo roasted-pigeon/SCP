@@ -1,0 +1,31 @@
+{% extends 'main/layout.html' %}
+{% load static %}
+
+{% block title %}
+Login Page
+{% endblock %}
+
+{% block body %}
+<div class="container">
+	<div class="logo">
+      <img src="{% static 'main/img/logoWhite.png'%}" alt="SCP Foundation Logo" width="100" height="100">
+    </div>
+    <h2>Login</h2>
+    <form method="post">
+        {% csrf_token %}
+      <div class="form-group">
+        <label>Email:</label>
+        {{ form.email }}
+      </div>
+      <div class="form-group">
+        <label>Password:</label>
+        {{ form.password_hash }}
+      </div>
+      <div class="form-group">
+        <input type="submit" value="Login">
+      </div>
+        <span>{{ error }}</span>
+    </form>
+    <p>Don't have an account? <a href="signup">Sign up</a></p>
+  </div>
+{% endblock %}
