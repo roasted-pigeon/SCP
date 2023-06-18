@@ -14,48 +14,137 @@ SCP DnD
     </style>
     <div class="container">
         <h1>SCP Foundation RPG Game Board</h1>
+        <div class="form-group">
+            <label for="grid-size">Размер сетки:</label>
+            <select id="grid-size" class="form-control">
+                <option value="20x20">20x20</option>
+                <option value="30x30">30x30</option>
+                <option value="40x40">40x40</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="num-rows">Количество строк:</label>
+            <input type="number" id="num-rows" class="form-control" min="1" max="100" value="20">
+        </div>
+        <div class="form-group">
+            <label for="num-cols">Количество столбцов:</label>
+            <input type="number" id="num-cols" class="form-control" min="1" max="100" value="20">
+        </div>
+        <div class="form-group">
+            <label for="fill-color">Цвет заполнения:</label>
+            <input type="color" id="fill-color" class="form-control" value="#0000ff">
+        </div>
         <canvas id="game-canvas"></canvas>
         <button id="clear-button" class="btn btn-danger mt-3">Очистить</button>
     </div>
 
     <script>
+        // JavaScript code for handling the game board functionality
         window.onload = function() {
             const canvas = document.getElementById('game-canvas');
             const context = canvas.getContext('2d');
-            const cellSize = 20;
-            const numRows = {{ height }};
-            const numCols = {{ width }};
+            let cellSize = 20; // Размер клетки в пикселях
+            let numRows = document.getElementById('num-rows').value = {{ height }};
+            let numCols = document.getElementById('num-cols').value = {{ width }};
+
+            // Функция для изменения размера сетки
+            function changeGridSize() {
+                const newCellSize = document.getElementById('grid-size').value.split('x')[0];
+                let newNumRows = parseInt(document.getElementById('num-rows').value); // Количество строк
+                let newNumCols = parseInt(document.getElementById('num-cols').value); // Количество столбцов
+                if (newCellSize !== cellSize) {
+                    numRows = newNumRows;
+                    numCols = newNumCols;
+                    canvas.width = cellSize * numCols;
+                    canvas.height = cellSize * numRows;
+                    clearCanvas();
+                }
+            }
+
+            document.getElementById('grid-size').addEventListener('change', changeGridSize);
+
+            let fillColor = document.getElementById('fill-color').value; // Цвет заполнения по умолчанию
+
+            // Функция для изменения цвета заполнения
+            function changeFillColor() {
+                fillColor = document.getElementById('fill-color').value;
+            }
+
+            document.getElementById('fill-color').addEventListener('change', changeFillColor);
+
+            // Функция для изменения количества строк
+            function changeNumRows() {
+                const newNumRows = parseInt(document.getElementById('num-rows').value);
+                if (newNumRows !== numRows) {
+                    numRows = newNumRows;
+                    canvas.height = cellSize * numRows;
+                    clearCanvas();
+                }
+            }
+
+            document.getElementById('num-rows').addEventListener('change', changeNumRows);
+
+            // Функция для изменения количества столбцов
+            function changeNumCols() {
+                const newNumCols = parseInt(document.getElementById('num-cols').value);
+                if (newNumCols !== numCols) {
+                    numCols = newNumCols;
+                    canvas.width = cellSize * numCols;
+                    clearCanvas();
+                }
+            }
+
+            document.getElementById('num-cols').addEventListener('change', changeNumCols);
+
+            // Установка размеров холста
             canvas.width = cellSize * numCols;
             canvas.height = cellSize * numRows;
+
             let isDrawing = false;
+
+            // Функция для рисования следа мыши
             function drawTrail(x, y) {
-                context.fillStyle = 'blue';
+                context.fillStyle = fillColor;
                 context.fillRect(x, y, cellSize, cellSize);
             }
+
+            // Функция для определения координат клетки на основе позиции мыши
             function getCellCoordinates(mouseX, mouseY) {
                 const rect = canvas.getBoundingClientRect();
-                const x = Math.floor((mouseX - rect.left) / cellSize) * cellSize;
-                const y = Math.floor((mouseY - rect.top) / cellSize) * cellSize;
-                return { x, y };
+                const col = Math.floor((mouseX - rect.left) / cellSize);
+                const row = Math.floor((mouseY - rect.top) / cellSize);
+                const x = col * cellSize;
+                const y = row * cellSize;
+                return { x, y, row, col };
             }
+
+            // Обработчик события нажатия кнопки мыши
             canvas.addEventListener('mousedown', function(event) {
                 isDrawing = true;
                 const { x, y } = getCellCoordinates(event.clientX, event.clientY);
                 drawTrail(x, y);
             });
+
+            // Обработчик события перемещения мыши
             canvas.addEventListener('mousemove', function(event) {
                 if (isDrawing) {
                     const { x, y } = getCellCoordinates(event.clientX, event.clientY);
                     drawTrail(x, y);
                 }
             });
+
+            // Обработчик события отпускания кнопки мыши
             canvas.addEventListener('mouseup', function(event) {
                 isDrawing = false;
             });
+
+            // Функция для очистки холста
             function clearCanvas() {
                 context.clearRect(0, 0, canvas.width, canvas.height);
                 drawGrid();
             }
+
+            // Функция для рисования сетки
             function drawGrid() {
                 context.beginPath();
                 for (let x = 0; x <= canvas.width; x += cellSize) {
@@ -69,13 +158,19 @@ SCP DnD
                 context.strokeStyle = '#ccc';
                 context.stroke();
             }
-            canvas.addEventListener('click', function(event) {
-                const { x, y } = getCellCoordinates(event.clientX, event.clientY);
 
+            // Дополнительный код для измерения расстояния между объектами
+            canvas.addEventListener('click', function(event) {
+                const { x, y, row, col } = getCellCoordinates(event.clientX, event.clientY);
+                // Здесь можно обработать клик и произвести нужные действия, например, измерение расстояния
             });
+
+            // Обработчик события нажатия на кнопку "Очистить"
             document.getElementById('clear-button').addEventListener('click', function() {
                 clearCanvas();
             });
+
+            // Рисуем сетку после загрузки страницы
             drawGrid();
         };
     </script>
