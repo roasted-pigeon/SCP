@@ -57,6 +57,8 @@ SCP DnD
         </div>
         <canvas id="game-canvas"></canvas>
         <button id="clear-button" class="btn btn-danger mt-3">Очистить</button>
+        <button id="save-button" class="btn btn-primary mt-3">Сохранить</button>
+        <button id="load-button" class="btn btn-success mt-3">Загрузить</button>
     </div>
 
     <script>
@@ -70,6 +72,7 @@ SCP DnD
             let numCols = document.getElementById('num-cols').value = {{ width }};
             let brushSize = parseInt(document.getElementById('brush-size').value);
             let drawMode = true; // Флаг режима рисования (true - режим рисования, false - режим заполнения)
+            let savedState = null; // Сохраненное состояние холста
 
             // Функция для изменения размера сетки
             function changeGridSize() {
@@ -127,11 +130,7 @@ SCP DnD
 
             // Функция для переключения режимов рисования
             function toggleMode(event) {
-                if (event.target.value === 'fill') {
-                    drawMode = false;
-                } else {
-                    drawMode = true;
-                }
+                drawMode = event.target.value !== 'fill';
             }
 
             document.getElementsByName('mode').forEach(function(element) {
@@ -209,16 +208,31 @@ SCP DnD
                 context.stroke();
             }
 
+            // Функция для сохранения состояния холста
+            function saveCanvasState() {
+                savedState = context.getImageData(0, 0, canvas.width, canvas.height);
+            }
+
+            document.getElementById('save-button').addEventListener('click', saveCanvasState);
+
+            // Функция для загрузки сохраненного состояния холста
+            function loadCanvasState() {
+                if (savedState) {
+                    context.putImageData(savedState, 0, 0);
+                }
+            }
+
+            document.getElementById('load-button').addEventListener('click', loadCanvasState);
+
             // Функция для инициализации игрового поля
             function initGameBoard() {
                 changeGridSize();
                 clearCanvas();
-                drawGrid();
             }
 
             document.getElementById('clear-button').addEventListener('click', clearCanvas);
 
             initGameBoard();
-        };
+        }
     </script>
 {% endblock %}
