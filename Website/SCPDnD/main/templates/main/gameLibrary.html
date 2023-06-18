@@ -1,0 +1,32 @@
+{% extends 'main/mainPage.html' %}
+
+{% block content%}
+<div class="upload-header">
+  <h1>Game Library</h1>
+</div>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+            <th>Description</th>
+          <th>Creation Date</th>
+            <th>Next Session Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for game in games %}
+        <tr>
+          <td>{{ game.title }}</td>
+            <td>{{ game.description }}</td>
+          <td>{{ game.creation_date }}</td>
+            <td>{{ game.next_session_date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+<div class="upload-link">
+  <a href="{% url 'gameCreate' %}">Create Game</a>
+</div>
+{% endblock %}

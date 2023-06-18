@@ -1,0 +1,32 @@
+{% extends 'main/mainPage.html' %}
+
+{% block content%}
+<div class="upload-header">
+  <h1>Document Library</h1>
+</div>
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Uploader</th>
+        <th>Upload Date</th>
+        <th>Download</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for document in documents %}
+      <tr>
+        <td>{{ document.name }}</td>
+        <td>{{ document.uploader.first_name }} {{ document.uploader.last_name }}</td>
+        <td>{{ document.upload_date }}</td>
+        <td><a href="{{ document.file_link }}">Download</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<div class="upload-link">
+  <a href="{% url 'documentUpload' %}">Upload Document</a>
+</div>
+{% endblock %}

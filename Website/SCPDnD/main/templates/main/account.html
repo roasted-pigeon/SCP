@@ -1,0 +1,9 @@
+{% extends 'main/mainPage.html' %}
+
+{% block content%}
+  <h1>My Account</h1>
+  <p>First Name: {{ userObject.first_name }}</p>
+  <p>Last Name: {{ userObject.last_name }}</p>
+  <p>Email: {{ userObject.email }}</p>
+  <p>Date of registration: {{ userObject.registration_date }}</p>
+{% endblock %}

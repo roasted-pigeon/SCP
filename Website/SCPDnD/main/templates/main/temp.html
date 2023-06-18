@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="floatingtoolbar" style="display: initial; left: 20px;">
+<ul>
+<li class="select activebutton" id="select" style="padding: 7px 0px 3px 0px;" tip="Select/Move">
+<span class="pictostwo">w</span>
+<svg class="mouse-icon pan" fill="none" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+<use href="#hand-pan-icon"></use>
+</svg>
+<div class="submenu">
+<ul>
+<li class="chooseselect">
+<span class="pictostwo" style="padding-left: 3px; padding-right: 3px;">w</span>
+Select/Move
+</li>
+<li class="choosepan">
+<svg fill="currentColor" height="20" width="20" xmlns="http://www.w3.org/2000/svg">
+<use href="#hand-pan-icon"></use>
+</svg>
+Pan View
+</li>
+</ul>
+</div>
+</li>
+<li class="objects" id="editinglayer" tip="Editing Objects &amp; Tokens">
+<span class="pictos currentselection"></span>
+<img id="editing_layer_icon" src="/images/editor/gm_layer.png" width="22" height="22">
+<svg class="layer-icon gmlayer" fill="none" height="17" viewBox="0 0 24 24" width="17" xmlns="http://www.w3.org/2000/svg">
+<use href="#eye-icon"></use>
+</svg>
+<div class="submenu">
+<ul>
+<li class="choosemap"><span class="pictos" style="padding: 0 3px 0 3px;">@</span> Map</li>
+					<li class="choosebackground">
+						<span class="pictos">a</span>
+						Background
+					</li>
+
+<li class="chooseobjects">
+<span class="pictos">b</span>
+Objects &amp; Tokens
+</li>
+					<li class="chooseforeground">
+						<span class="pictos">B</span>
+						Foreground
+					</li>
+
+<li class="choosegmlayer">
+<svg fill="currentColor" height="17" width="17" xmlns="http://www.w3.org/2000/svg">
+<use href="#eye-icon"></use>
+</svg>
+GM Info Overlay
+</li><li class="choosewalls"><span class="pictostwo">r</span> Dynamic Lighting</li>
+					<li class="chooseweather">
+						<span class="pictos">C</span>
+						Weather Exclusions
+					</li>
+
+</ul>
+<ul>
+<li class="gm_slider_box">
+<svg fill="currentColor" height="17" width="17" xmlns="http://www.w3.org/2000/svg">
+<use href="#eye-icon"></use>
+</svg>
+GM Overlay Opacity
+<div id="gm_layer_slider" class="ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all"><a class="ui-slider-handle ui-state-default ui-corner-all" href="#" style="left: 55%;"></a></div>
+</li>
+</ul>
+</div>
+</li>
+<li class="path" id="drawingtools" tip="Drawing Tools">
+<span class="pictostwo currentselection" style="position: relative;">
+<span class="pictostwo subicon"></span>
+</span>
+<div class="submenu">
+<ul>
+<li class="chooserect showtip tipsy-w" title="Draw a rectangle, hold Alt for circle/ellipse, hold Shift to snap to grid">
+<span class="pictostwo">a</span>
+Draw Shape
+</li>
+<li class="choosecircle showtip">
+<span class="fas fa-circle"></span>
+Circle
+</li>
+<li class="choosepath">
+<span class="pictostwo">i</span>
+Freehand
+</li>
+<li class="choosepolygon showtip tipsy-w" title="Hold Shift to snap to grid, Ctrl+Z to undo last point, right-click or Esc to complete">
+<span class="pictosthree" style="font-size: 1.3em;">c</span>
+Polygon/Line
+</li>
+<li class="choosetext">
+<span class="pictostwo" style="padding: 0px 6px 0px 6px;">q</span>
+Text
+</li>
+<li class="choosecleardrawings">
+<span class="pictos" style="position: relative">#</span>
+Clear Drawings
+</li>
+</ul>
+</div>
+</li><li id="fxtools"><span class="pictos">e</span></li>
+<li id="zoompanel" tip="Zoom">
+<span class="pictos">s</span>
+<div class="submenu">
+<div class="inner">
+<ul class="selZoom">
+<li value="250">250%</li>
+<li value="240">240%</li>
+<li value="230">230%</li>
+<li value="220">220%</li>
+<li value="210">210%</li>
+<li value="200">200%</li>
+<li value="190">190%</li>
+<li value="180">180%</li>
+<li value="170">170%</li>
+<li value="160">160%</li>
+<li value="150">150%</li>
+<li value="140">140%</li>
+<li value="130">130%</li>
+<li value="120">120%</li>
+<li value="110">110%</li>
+<li class="" value="100">100%</li>
+<li value="90">90%</li>
+<li value="80">80%</li>
+<li value="70">70%</li>
+<li value="60">60%</li>
+<li value="50">50%</li>
+<li value="40">40%</li>
+<li value="30">30%</li>
+<li value="20">20%</li>
+<li value="10">10%</li>
+</ul>
+</div>
+</div>
+</li>
+<li id="measure" tip="Measure">
+<svg class="measure-icon snap-center" fill="none" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg">
+<use href="#ruler-flat-icon"></use>
+</svg>
+<svg class="measure-icon snap-corner" fill="none" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg">
+<use href="#snap-corner-icon"></use>
+</svg>
+<svg class="measure-icon snap-none" fill="none" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg">
+<use href="#ruler-standing-icon"></use>
+</svg>
+<div class="submenu">
+<ul>
+<li class="activerulermode" mode="snap_center">
+<svg height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg">
+<use href="#ruler-flat-icon"></use>
+</svg>
+Snap to center
+</li>
+<li mode="snap_corner">
+<svg height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg">
+<use href="#snap-corner-icon"></use>
+</svg>
+Snap to corner
+</li>
+<li mode="no_snap">
+<svg fill="none" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg">
+<use href="#ruler-standing-icon"></use>
+</svg>
+No snapping
+</li>
+</ul>
+<ul>
+<li class="rulervisibility activerulermode" mode="show">
+<svg fill="currentColor" height="20" width="20" xmlns="http://www.w3.org/2000/svg">
+<use href="#eye-icon"></use>
+</svg>
+Show to others
+</li>
+<li class="rulervisibility" mode="hide">
+<svg fill="currentColor" height="20" width="20" xmlns="http://www.w3.org/2000/svg">
+<use href="#invisible-icon"></use>
+</svg>
+Hide from others
+</li>
+</ul>
+</div>
+</li><li id="placeObject">
+					<svg fill="currentColor" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
+					<use href="#place-object-icon"></use>
+					</svg>
+					<div class="submenu"><ul>
+						<li id="placelight" tip="Place Light">
+							<svg fill="currentColor" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
+							<use href="#torch-icon"></use>
+							</svg>
+							Place Light
+						</li>
+						<li id="placeWindow">
+							<svg fill="currentColor" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
+							<use href="#window-icon"></use>
+							</svg>
+							Place Window
+						</li>
+						<li id="placeDoor">
+							<svg fill="currentColor" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
+							<use href="#door-icon"></use>
+							</svg>
+							Place Door
+						</li>
+					</ul></div>
+				</li>
+<li class="legacy hide" id="fogcontrols" tip="Reveal Areas">
+<span class="pictos currentselection"></span>
+<svg class="revealtool" fill="currentColor" height="20" width="20" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+<use href="#eye-icon"></use>
+</svg>
+<svg class="hidetool" fill="currentColor" height="20" width="20" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+<use href="#invisible-icon"></use>
+</svg>
+<div class="submenu" id="vue_container_hide_reveal">
+<ul class="udl">
+<li>
+<div id="vm_hide_reveal" data-v-app=""><div data-v-344264a6="" class="d-grid gap-4"><ul data-v-344264a6="" class="nav nav-tabs"><li data-v-344264a6="" role="presentation" title="Set an area of darkness which will be revealed when a token has vision and light or night vision." alt="Enable explorable darkness" class="fogcontrols-list-item disabled"><a data-v-344264a6="" aria-disabled="true">Explorable Darkness</a></li><li data-v-344264a6="" role="presentation" title="Set an area of total darkness. Tokens won't be able to see through, regardless of vision or lighting." alt="Enable permanent darkness" class="fogcontrols-list-item active"><a data-v-344264a6="" aria-current="page" aria-disabled="true" tabindex="-1">Permanent Darkness</a></li></ul><div data-v-344264a6="" class="d-grid gap-4"><div data-v-344264a6="" class="btn-group w-100 visibility-toggle-el" role="group" aria-label="Hide or reveal areas using updated dynamic lighting"><button data-v-344264a6="" type="button" class="btn btn-default w-50"><svg data-v-344264a6="" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><use data-v-344264a6="" href="#invisible-icon"></use></svg> Hide</button><button data-v-344264a6="" type="button" class="btn btn-default w-50"><svg data-v-344264a6="" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><use data-v-344264a6="" href="#eye-icon"></use></svg> Reveal</button></div><div data-v-5502f015="" data-v-344264a6="" class="dropdown"><button data-v-5502f015="" id="dropdownMenuButton1" class="btn btn-primary dropdown-toggle w-100" type="button" data-toggle="dropdown" aria-expanded="false"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDIzLjAuMywgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAxMDAgMTAwOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxwYXRoIGQ9Ik05MC4xNyw2OC40NFYzMS41NmMxLjM2LTAuNjcsMi42LTEuNTQsMy42NS0yLjU5YzIuNDYtMi40Niw0LTUuOSw0LTkuNjVjMC0zLjc2LTEuNTMtNy4yLTQtOS42NWMtMi40Ni0yLjQ2LTUuOS00LTkuNjUtNAoJYy0zLjc2LDAtNy4yLDEuNTMtOS42NSw0Yy0xLjA2LDEuMDUtMS45MywyLjI5LTIuNTksMy42NUgyOC4wN2MtMC42Ny0xLjM2LTEuNTQtMi42LTIuNTktMy42NWMtMi40Ni0yLjQ2LTUuOS00LTkuNjUtNAoJYy0zLjc2LDAtNy4yLDEuNTMtOS42NSw0Yy0yLjQ2LDIuNDYtNCw1LjktNCw5LjY1YzAsMy43NiwxLjU0LDcuMiw0LDkuNjVjMS4wNSwxLjA1LDIuMjksMS45MywzLjY1LDIuNTl2MzYuODgKCWMtMS4zNiwwLjY3LTIuNiwxLjU0LTMuNjUsMi41OWMtMi40NiwyLjQ2LTQsNS45LTQsOS42NWMwLDMuNzYsMS41NCw3LjIsNCw5LjY1YzIuNDYsMi40Niw1LjksNCw5LjY1LDRjMy43NiwwLDcuMi0xLjUzLDkuNjUtNAoJYzEuMDUtMS4wNSwxLjkzLTIuMjksMi41OS0zLjY1aDQzLjg1YzAuNjcsMS4zNiwxLjU0LDIuNiwyLjU5LDMuNjVjMi40NiwyLjQ2LDUuOSw0LDkuNjUsNGMzLjc2LDAsNy4yLTEuNTMsOS42NS00CgljMi40Ni0yLjQ2LDQtNS45LDQtOS42NWMwLTMuNzYtMS41My03LjItNC05LjY1QzkyLjc3LDY5Ljk4LDkxLjUzLDY5LjExLDkwLjE3LDY4LjQ0eiBNMTkuMTIsODMuOThjLTAuODYsMC44NS0xLjk5LDEuMzYtMy4yOSwxLjM2CgljLTEuMywwLTIuNDMtMC41MS0zLjI5LTEuMzZjLTAuODUtMC44Ni0xLjM2LTEuOTktMS4zNi0zLjI5YzAtMS4zLDAuNTEtMi40MywxLjM2LTMuMjljMC44Ni0wLjg1LDEuOTktMS4zNiwzLjI5LTEuMzYKCWMxLjMsMCwyLjQzLDAuNTEsMy4yOSwxLjM2YzAuODUsMC44NiwxLjM2LDEuOTksMS4zNiwzLjI5QzIwLjQ4LDgxLjk5LDE5Ljk3LDgzLjEyLDE5LjEyLDgzLjk4eiBNMjUuNDgsNzEuMDMKCWMtMS4wNS0xLjA1LTIuMjktMS45My0zLjY1LTIuNTlWMzEuNTZjMS4zNi0wLjY3LDIuNi0xLjU0LDMuNjUtMi41OWMxLjA1LTEuMDUsMS45My0yLjI5LDIuNTktMy42NWg0My44NQoJYzAuNjcsMS4zNiwxLjU0LDIuNiwyLjU5LDMuNjVjMS4wNSwxLjA1LDIuMjksMS45MywzLjY1LDIuNTl2MzYuODhjLTEuMzYsMC42Ny0yLjYsMS41NC0zLjY1LDIuNTljLTEuMDYsMS4wNS0xLjkzLDIuMjktMi41OSwzLjY1CglIMjguMDdDMjcuNDEsNzMuMzMsMjYuNTQsNzIuMDksMjUuNDgsNzEuMDN6IE0xOS4xMiwyMi42Yy0wLjg2LDAuODUtMS45OSwxLjM2LTMuMjksMS4zNmMtMS4zLDAtMi40My0wLjUxLTMuMjktMS4zNgoJYy0wLjg1LTAuODYtMS4zNi0xLjk5LTEuMzYtMy4yOWMwLTEuMywwLjUxLTIuNDMsMS4zNi0zLjI5YzAuODYtMC44NSwxLjk5LTEuMzYsMy4yOS0xLjM2YzEuMywwLDIuNDMsMC41MSwzLjI5LDEuMzYKCWMwLjg1LDAuODYsMS4zNiwxLjk5LDEuMzYsMy4yOUMyMC40OCwyMC42MSwxOS45NywyMS43NSwxOS4xMiwyMi42eiBNODAuODgsMTYuMDJjMC44Ni0wLjg1LDEuOTktMS4zNiwzLjI5LTEuMzYKCWMxLjMsMCwyLjQzLDAuNTEsMy4yOSwxLjM2YzAuODUsMC44NiwxLjM2LDEuOTksMS4zNiwzLjI5YzAsMS4zLTAuNTEsMi40My0xLjM2LDMuMjljLTAuODYsMC44NS0xLjk5LDEuMzYtMy4yOSwxLjM2CgljLTEuMywwLTIuNDMtMC41MS0zLjI5LTEuMzZjLTAuODUtMC44Ni0xLjM2LTEuOTktMS4zNi0zLjI5Qzc5LjUyLDE4LjAxLDgwLjAzLDE2Ljg4LDgwLjg4LDE2LjAyeiBNODAuODgsNzcuNAoJYzAuODYtMC44NSwxLjk5LTEuMzYsMy4yOS0xLjM2YzEuMywwLDIuNDMsMC41MSwzLjI5LDEuMzZjMC44NSwwLjg2LDEuMzYsMS45OSwxLjM2LDMuMjljMCwxLjMtMC41MSwyLjQzLTEuMzYsMy4yOQoJYy0wLjg2LDAuODUtMS45OSwxLjM2LTMuMjksMS4zNmMtMS4zLDAtMi40My0wLjUxLTMuMjktMS4zNmMtMC44NS0wLjg2LTEuMzYtMS45OS0xLjM2LTMuMjlDNzkuNTIsNzkuMzksODAuMDMsNzguMjUsODAuODgsNzcuNHoiCgkvPgo8L3N2Zz4K" width="20" height="20"> Rectangle<span data-v-5502f015="" class="caret"></span></button><ul data-v-5502f015="" id="tool-dropdown" class="dropdown-menu w-100" aria-labelledby="dropdownMenuButton1"><li data-v-5502f015="" class="tool-dropdown-option active"><a data-v-5502f015=""><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDIzLjAuMywgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAxMDAgMTAwOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxwYXRoIGQ9Ik05MC4xNyw2OC40NFYzMS41NmMxLjM2LTAuNjcsMi42LTEuNTQsMy42NS0yLjU5YzIuNDYtMi40Niw0LTUuOSw0LTkuNjVjMC0zLjc2LTEuNTMtNy4yLTQtOS42NWMtMi40Ni0yLjQ2LTUuOS00LTkuNjUtNAoJYy0zLjc2LDAtNy4yLDEuNTMtOS42NSw0Yy0xLjA2LDEuMDUtMS45MywyLjI5LTIuNTksMy42NUgyOC4wN2MtMC42Ny0xLjM2LTEuNTQtMi42LTIuNTktMy42NWMtMi40Ni0yLjQ2LTUuOS00LTkuNjUtNAoJYy0zLjc2LDAtNy4yLDEuNTMtOS42NSw0Yy0yLjQ2LDIuNDYtNCw1LjktNCw5LjY1YzAsMy43NiwxLjU0LDcuMiw0LDkuNjVjMS4wNSwxLjA1LDIuMjksMS45MywzLjY1LDIuNTl2MzYuODgKCWMtMS4zNiwwLjY3LTIuNiwxLjU0LTMuNjUsMi41OWMtMi40NiwyLjQ2LTQsNS45LTQsOS42NWMwLDMuNzYsMS41NCw3LjIsNCw5LjY1YzIuNDYsMi40Niw1LjksNCw5LjY1LDRjMy43NiwwLDcuMi0xLjUzLDkuNjUtNAoJYzEuMDUtMS4wNSwxLjkzLTIuMjksMi41OS0zLjY1aDQzLjg1YzAuNjcsMS4zNiwxLjU0LDIuNiwyLjU5LDMuNjVjMi40NiwyLjQ2LDUuOSw0LDkuNjUsNGMzLjc2LDAsNy4yLTEuNTMsOS42NS00CgljMi40Ni0yLjQ2LDQtNS45LDQtOS42NWMwLTMuNzYtMS41My03LjItNC05LjY1QzkyLjc3LDY5Ljk4LDkxLjUzLDY5LjExLDkwLjE3LDY4LjQ0eiBNMTkuMTIsODMuOThjLTAuODYsMC44NS0xLjk5LDEuMzYtMy4yOSwxLjM2CgljLTEuMywwLTIuNDMtMC41MS0zLjI5LTEuMzZjLTAuODUtMC44Ni0xLjM2LTEuOTktMS4zNi0zLjI5YzAtMS4zLDAuNTEtMi40MywxLjM2LTMuMjljMC44Ni0wLjg1LDEuOTktMS4zNiwzLjI5LTEuMzYKCWMxLjMsMCwyLjQzLDAuNTEsMy4yOSwxLjM2YzAuODUsMC44NiwxLjM2LDEuOTksMS4zNiwzLjI5QzIwLjQ4LDgxLjk5LDE5Ljk3LDgzLjEyLDE5LjEyLDgzLjk4eiBNMjUuNDgsNzEuMDMKCWMtMS4wNS0xLjA1LTIuMjktMS45My0zLjY1LTIuNTlWMzEuNTZjMS4zNi0wLjY3LDIuNi0xLjU0LDMuNjUtMi41OWMxLjA1LTEuMDUsMS45My0yLjI5LDIuNTktMy42NWg0My44NQoJYzAuNjcsMS4zNiwxLjU0LDIuNiwyLjU5LDMuNjVjMS4wNSwxLjA1LDIuMjksMS45MywzLjY1LDIuNTl2MzYuODhjLTEuMzYsMC42Ny0yLjYsMS41NC0zLjY1LDIuNTljLTEuMDYsMS4wNS0xLjkzLDIuMjktMi41OSwzLjY1CglIMjguMDdDMjcuNDEsNzMuMzMsMjYuNTQsNzIuMDksMjUuNDgsNzEuMDN6IE0xOS4xMiwyMi42Yy0wLjg2LDAuODUtMS45OSwxLjM2LTMuMjksMS4zNmMtMS4zLDAtMi40My0wLjUxLTMuMjktMS4zNgoJYy0wLjg1LTAuODYtMS4zNi0xLjk5LTEuMzYtMy4yOWMwLTEuMywwLjUxLTIuNDMsMS4zNi0zLjI5YzAuODYtMC44NSwxLjk5LTEuMzYsMy4yOS0xLjM2YzEuMywwLDIuNDMsMC41MSwzLjI5LDEuMzYKCWMwLjg1LDAuODYsMS4zNiwxLjk5LDEuMzYsMy4yOUMyMC40OCwyMC42MSwxOS45NywyMS43NSwxOS4xMiwyMi42eiBNODAuODgsMTYuMDJjMC44Ni0wLjg1LDEuOTktMS4zNiwzLjI5LTEuMzYKCWMxLjMsMCwyLjQzLDAuNTEsMy4yOSwxLjM2YzAuODUsMC44NiwxLjM2LDEuOTksMS4zNiwzLjI5YzAsMS4zLTAuNTEsMi40My0xLjM2LDMuMjljLTAuODYsMC44NS0xLjk5LDEuMzYtMy4yOSwxLjM2CgljLTEuMywwLTIuNDMtMC41MS0zLjI5LTEuMzZjLTAuODUtMC44Ni0xLjM2LTEuOTktMS4zNi0zLjI5Qzc5LjUyLDE4LjAxLDgwLjAzLDE2Ljg4LDgwLjg4LDE2LjAyeiBNODAuODgsNzcuNAoJYzAuODYtMC44NSwxLjk5LTEuMzYsMy4yOS0xLjM2YzEuMywwLDIuNDMsMC41MSwzLjI5LDEuMzZjMC44NSwwLjg2LDEuMzYsMS45OSwxLjM2LDMuMjljMCwxLjMtMC41MSwyLjQzLTEuMzYsMy4yOQoJYy0wLjg2LDAuODUtMS45OSwxLjM2LTMuMjksMS4zNmMtMS4zLDAtMi40My0wLjUxLTMuMjktMS4zNmMtMC44NS0wLjg2LTEuMzYtMS45OS0xLjM2LTMuMjlDNzkuNTIsNzkuMzksODAuMDMsNzguMjUsODAuODgsNzcuNHoiCgkvPgo8L3N2Zz4K" width="20" height="20"> Rectangle</a></li><li data-v-5502f015="" class="tool-dropdown-option"><a data-v-5502f015=""><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDIzLjAuMywgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAxMDAgMTAwOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxwYXRoIGQ9Ik04NC4xNyw2Ny4wNGMtMC44LDAtMS41OSwwLjA4LTIuMzYsMC4yMkw3My45LDU2LjM4YzEuMDEtMS45MSwxLjU5LTQuMDgsMS41OS02LjM4YzAtMi4zLTAuNTgtNC40Ny0xLjU5LTYuMzhsNy45MS0xMC44NwoJYzAuNzcsMC4xMywxLjU1LDAuMjIsMi4zNiwwLjIyYzMuNzYsMCw3LjItMS41NCw5LjY1LTRjMi40Ni0yLjQ2LDQtNS45LDQtOS42NWMwLTMuNzYtMS41My03LjItNC05LjY1Yy0yLjQ2LTIuNDYtNS45LTQtOS42NS00CgljLTMuNzYsMC03LjIsMS41My05LjY1LDRjLTEuMDYsMS4wNS0xLjkzLDIuMjktMi41OSwzLjY1SDI4LjA3Yy0wLjY3LTEuMzYtMS41NC0yLjYtMi41OS0zLjY1Yy0yLjQ2LTIuNDYtNS45LTQtOS42NS00CgljLTMuNzYsMC03LjIsMS41My05LjY1LDRjLTIuNDYsMi40Ni00LDUuOS00LDkuNjVjMCwzLjc2LDEuNTQsNy4yLDQsOS42NWMxLjA1LDEuMDUsMi4yOSwxLjkzLDMuNjUsMi41OXYzNi44OAoJYy0xLjM2LDAuNjctMi42LDEuNTQtMy42NSwyLjU5Yy0yLjQ2LDIuNDYtNCw1LjktNCw5LjY1YzAsMy43NiwxLjU0LDcuMiw0LDkuNjVjMi40NiwyLjQ2LDUuOSw0LDkuNjUsNGMzLjc2LDAsNy4yLTEuNTMsOS42NS00CgljMS4wNS0xLjA1LDEuOTMtMi4yOSwyLjU5LTMuNjVoNDMuODVjMC42NywxLjM2LDEuNTQsMi42LDIuNTksMy42NWMyLjQ2LDIuNDYsNS45LDQsOS42NSw0YzMuNzYsMCw3LjItMS41Myw5LjY1LTQKCWMyLjQ2LTIuNDYsNC01LjksNC05LjY1YzAtMy43Ni0xLjUzLTcuMi00LTkuNjVDOTEuMzcsNjguNTcsODcuOTMsNjcuMDMsODQuMTcsNjcuMDR6IE0xOS4xMiw4My45OGMtMC44NiwwLjg1LTEuOTksMS4zNi0zLjI5LDEuMzYKCWMtMS4zLDAtMi40My0wLjUxLTMuMjktMS4zNmMtMC44NS0wLjg2LTEuMzYtMS45OS0xLjM2LTMuMjljMC0xLjMsMC41MS0yLjQzLDEuMzYtMy4yOWMwLjg2LTAuODUsMS45OS0xLjM2LDMuMjktMS4zNgoJYzEuMywwLDIuNDMsMC41MSwzLjI5LDEuMzZjMC44NSwwLjg2LDEuMzYsMS45OSwxLjM2LDMuMjlDMjAuNDgsODEuOTksMTkuOTcsODMuMTIsMTkuMTIsODMuOTh6IE0yNS40OCw3MS4wMwoJYy0xLjA1LTEuMDUtMi4yOS0xLjkzLTMuNjUtMi41OVYzMS41NmMxLjM2LTAuNjcsMi42LTEuNTQsMy42NS0yLjU5YzEuMDUtMS4wNSwxLjkzLTIuMjksMi41OS0zLjY1aDQzLjg1CgljMC4wNiwwLjEzLDAuMTIsMC4yNiwwLjE4LDAuMzhsLTcuOTEsMTAuODdjLTAuNzctMC4xMy0xLjU1LTAuMjItMi4zNi0wLjIyYy0zLjc2LDAtNy4yLDEuNTMtOS42NSw0Yy0yLjQ2LDIuNDYtNCw1LjktNCw5LjY1CgljMCwzLjc2LDEuNTQsNy4yLDQsOS42NWMyLjQ2LDIuNDYsNS45LDQsOS42NSw0YzAuOCwwLDEuNTktMC4wOCwyLjM2LTAuMjJsNy45MSwxMC44N2MtMC4wNywwLjEyLTAuMTIsMC4yNS0wLjE4LDAuMzhIMjguMDcKCUMyNy40MSw3My4zMywyNi41NCw3Mi4wOSwyNS40OCw3MS4wM3ogTTE5LjEyLDIyLjZjLTAuODYsMC44NS0xLjk5LDEuMzYtMy4yOSwxLjM2Yy0xLjMsMC0yLjQzLTAuNTEtMy4yOS0xLjM2CgljLTAuODUtMC44Ni0xLjM2LTEuOTktMS4zNi0zLjI5YzAtMS4zLDAuNTEtMi40MywxLjM2LTMuMjljMC44Ni0wLjg1LDEuOTktMS4zNiwzLjI5LTEuMzZjMS4zLDAsMi40MywwLjUxLDMuMjksMS4zNgoJYzAuODUsMC44NiwxLjM2LDEuOTksMS4zNiwzLjI5QzIwLjQ4LDIwLjYxLDE5Ljk3LDIxLjc1LDE5LjEyLDIyLjZ6IE04MC44OCwxNi4wMmMwLjg2LTAuODUsMS45OS0xLjM2LDMuMjktMS4zNgoJYzEuMywwLDIuNDMsMC41MSwzLjI5LDEuMzZjMC44NSwwLjg2LDEuMzYsMS45OSwxLjM2LDMuMjljMCwxLjMtMC41MSwyLjQzLTEuMzYsMy4yOWMtMC44NiwwLjg1LTEuOTksMS4zNi0zLjI5LDEuMzYKCWMtMS4zLDAtMi40My0wLjUxLTMuMjktMS4zNmMtMC44NS0wLjg2LTEuMzYtMS45OS0xLjM2LTMuMjlDNzkuNTIsMTguMDEsODAuMDMsMTYuODgsODAuODgsMTYuMDJ6IE02NS4xMyw0Ni43MQoJYzAuODUsMC44NiwxLjM2LDEuOTksMS4zNiwzLjI5YzAsMS4zLTAuNTEsMi40My0xLjM2LDMuMjljLTAuODYsMC44NS0xLjk5LDEuMzYtMy4yOSwxLjM2Yy0xLjMsMC0yLjQzLTAuNTEtMy4yOS0xLjM2CgljLTAuODUtMC44Ni0xLjM2LTEuOTktMS4zNi0zLjI5YzAtMS4zLDAuNTEtMi40MywxLjM2LTMuMjljMC44Ni0wLjg1LDEuOTktMS4zNiwzLjI5LTEuMzZDNjMuMTQsNDUuMzUsNjQuMjcsNDUuODYsNjUuMTMsNDYuNzF6CgkgTTg3LjQ2LDgzLjk4Yy0wLjg2LDAuODUtMS45OSwxLjM2LTMuMjksMS4zNmMtMS4zLDAtMi40My0wLjUxLTMuMjktMS4zNmMtMC44NS0wLjg2LTEuMzYtMS45OS0xLjM2LTMuMjkKCWMwLTEuMywwLjUxLTIuNDMsMS4zNi0zLjI5YzAuODYtMC44NSwxLjk5LTEuMzYsMy4yOS0xLjM2YzEuMywwLDIuNDMsMC41MSwzLjI5LDEuMzZjMC44NSwwLjg2LDEuMzYsMS45OSwxLjM2LDMuMjkKCUM4OC44Miw4MS45OSw4OC4zMSw4My4xMiw4Ny40Niw4My45OHoiLz4KPC9zdmc+Cg==" width="20" height="20"> Polygon</a></li></ul></div></div><a data-v-344264a6="" type="button" class="reset-el" role="button"><i data-v-344264a6="" class="bi bi-arrow-clockwise"></i> Reset Permanent Darkness</a></div></div>
+</li>
+</ul>
+<ul class="legacy">
+<li class="choosereveal">
+<span class="pictos">E</span>
+Reveal Areas
+</li>
+<li class="choosepolygonreveal showtip tipsy-w" title="Hold Shift to snap to grid, Ctrl+Z to undo last point, right-click or Esc to complete">
+<span class="pictosthree" style="font-size: 1.3em;">c</span>
+Polygon Reveal
+</li>
+<li class="choosehide">
+<span class="pictos">C</span>
+Hide Areas
+</li>
+</ul>
+<ul class="legacy">
+<li class="chooseclearfog showtip tipsy-w" title="Reset map back to completely hidden from players (can speed up rendering if you've revealed many small areas)">
+<span class="pictos" style="position: relative">#</span>
+Reset Fog
+</li>
+</ul>
+</div>
+</li>
+<li id="startrounds" tip="Begin Turn-Taking">
+<span class="pictos">t</span>
+</li>
+<li id="diceroller">
+<span class="dfontd20" style="font-weight: bold;">t</span>
+<div class="submenu">
+<ul>
+<li class="quickdice">
+<div class="quickdice-toggle" data-toggle-type="gmroll" data-toggle="false">GM</div>
+<div class="quickdice-toggle" data-toggle-type="inline" data-toggle="false">[[ ]]</div>
+<div class="quickdice-toggle" data-group="exploding" data-toggle-type="exploding" data-toggle="false">!</div>
+<div class="quickdice-toggle" data-group="exploding" data-toggle-type="compounding" data-toggle="false">!!</div>
+<div class="quickdice-toggle" data-group="exploding" data-toggle-type="penetrating" data-toggle="false">!p</div>
+</li>
+<li class="quickdice">
+<div class="quickdice-label basicroll" data-dice="d4">
+<span class="dfontd4 rolltype">d</span>
+d4
+</div>
+<div class="quickdice-button basicroll" data-dice="2d4">2</div>
+<div class="quickdice-button basicroll" data-dice="3d4">3</div>
+<div class="quickdice-button basicroll" data-dice="4d4">4</div>
+<div class="quickdice-button basicroll" data-dice="5d4">5</div>
+</li>
+<li class="quickdice">
+<div class="quickdice-label basicroll" data-dice="d6">
+<span class="dfontd6 rolltype">f</span>
+d6
+</div>
+<div class="quickdice-button basicroll" data-dice="2d6">2</div>
+<div class="quickdice-button basicroll" data-dice="3d6">3</div>
+<div class="quickdice-button basicroll" data-dice="4d6">4</div>
+<div class="quickdice-button basicroll" data-dice="5d6">5</div>
+</li>
+<li class="quickdice">
+<div class="quickdice-label basicroll" data-dice="d8">
+<span class="dfontd8 rolltype">h</span>
+d8
+</div>
+<div class="quickdice-button basicroll" data-dice="2d8">2</div>
+<div class="quickdice-button basicroll" data-dice="3d8">3</div>
+<div class="quickdice-button basicroll" data-dice="4d8">4</div>
+<div class="quickdice-button basicroll" data-dice="5d8">5</div>
+</li>
+<li class="quickdice">
+<div class="quickdice-label basicroll" data-dice="d10">
+<span class="dfontd10 rolltype">j</span>
+d10
+</div>
+<div class="quickdice-button basicroll" data-dice="2d10">2</div>
+<div class="quickdice-button basicroll" data-dice="3d10">3</div>
+<div class="quickdice-button basicroll" data-dice="4d10">4</div>
+<div class="quickdice-button basicroll" data-dice="5d10">5</div>
+</li>
+<li class="quickdice">
+<div class="quickdice-label basicroll" data-dice="d12">
+<span class="dfontd12 rolltype">l</span>
+d12
+</div>
+<div class="quickdice-button basicroll" data-dice="2d12">2</div>
+<div class="quickdice-button basicroll" data-dice="3d12">3</div>
+<div class="quickdice-button basicroll" data-dice="4d12">4</div>
+<div class="quickdice-button basicroll" data-dice="5d12">5</div>
+</li>
+<li class="quickdice">
+<div class="quickdice-label basicroll" data-dice="d20">
+<span class="dfontd20 rolltype">t</span>
+d20
+</div>
+<div class="quickdice-button basicroll" data-dice="2d20">2</div>
+<div class="quickdice-button basicroll" data-dice="3d20">3</div>
+<div class="quickdice-button basicroll" data-dice="4d20">4</div>
+<div class="quickdice-button basicroll" data-dice="5d20">5</div>
+</li>
+<li class="quickdice">
+<div class="quickdice-label basicroll" data-dice="d100">
+<span class="dfontd10 rolltype">j j</span>
+d100
+</div>
+<div class="quickdice-button basicroll" data-dice="2d100">2</div>
+<div class="quickdice-button basicroll" data-dice="3d100">3</div>
+<div class="quickdice-button basicroll" data-dice="4d100">4</div>
+<div class="quickdice-button basicroll" data-dice="5d100">5</div>
+</li>
+<li class="quickdice">
+<div class="quickdice-label basicroll" data-dice="dF">
+FUDGE
+</div>
+<div class="quickdice-button basicroll" data-dice="2dF">2</div>
+<div class="quickdice-button basicroll" data-dice="3dF">3</div>
+<div class="quickdice-button basicroll" data-dice="4dF">4</div>
+<div class="quickdice-button basicroll" data-dice="5dF">5</div>
+</li>
+<li class="dicerollermenu">
+<span class="pictos rolltype">x</span>
+Adv. Dice Roller
+</li>
+</ul>
+</div>
+</li>
+<li id="helpsite" tip="Help!">
+<span class="pictos">?</span>
+<div class="submenu">
+<ul>
+<li class="showhelp">
+<span class="pictos">?</span>
+Help &amp; Docs
+</li>
+<li class="showshortcuts">
+<span class="pictos">i</span>
+Shortcuts Reference
+</li>
+<li class="showbugs">
+<span class="pictos">!</span>
+Report a Bug
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</body>
+</html>
