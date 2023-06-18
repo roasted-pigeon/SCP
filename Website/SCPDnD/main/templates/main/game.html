@@ -19,61 +19,43 @@ SCP DnD
     </div>
 
     <script>
-        // JavaScript code for handling the game board functionality
         window.onload = function() {
             const canvas = document.getElementById('game-canvas');
             const context = canvas.getContext('2d');
-            const cellSize = 20; // Размер клетки в пикселях
-
-            // Установка размеров холста
-            const numRows = 20; // Количество клеток по вертикали
-            const numCols = 20; // Количество клеток по горизонтали
+            const cellSize = 20;
+            const numRows = {{ height }};
+            const numCols = {{ width }};
             canvas.width = cellSize * numCols;
             canvas.height = cellSize * numRows;
-
             let isDrawing = false;
-
-            // Функция для рисования следа мыши
             function drawTrail(x, y) {
                 context.fillStyle = 'blue';
                 context.fillRect(x, y, cellSize, cellSize);
             }
-
-            // Функция для определения координат клетки на основе позиции мыши
             function getCellCoordinates(mouseX, mouseY) {
                 const rect = canvas.getBoundingClientRect();
                 const x = Math.floor((mouseX - rect.left) / cellSize) * cellSize;
                 const y = Math.floor((mouseY - rect.top) / cellSize) * cellSize;
                 return { x, y };
             }
-
-            // Обработчик события нажатия кнопки мыши
             canvas.addEventListener('mousedown', function(event) {
                 isDrawing = true;
                 const { x, y } = getCellCoordinates(event.clientX, event.clientY);
                 drawTrail(x, y);
             });
-
-            // Обработчик события перемещения мыши
             canvas.addEventListener('mousemove', function(event) {
                 if (isDrawing) {
                     const { x, y } = getCellCoordinates(event.clientX, event.clientY);
                     drawTrail(x, y);
                 }
             });
-
-            // Обработчик события отпускания кнопки мыши
             canvas.addEventListener('mouseup', function(event) {
                 isDrawing = false;
             });
-
-            // Функция для очистки холста
             function clearCanvas() {
                 context.clearRect(0, 0, canvas.width, canvas.height);
                 drawGrid();
             }
-
-            // Функция для рисования сетки
             function drawGrid() {
                 context.beginPath();
                 for (let x = 0; x <= canvas.width; x += cellSize) {
@@ -87,19 +69,13 @@ SCP DnD
                 context.strokeStyle = '#ccc';
                 context.stroke();
             }
-
-            // Дополнительный код для измерения расстояния между объектами
             canvas.addEventListener('click', function(event) {
                 const { x, y } = getCellCoordinates(event.clientX, event.clientY);
-                // Здесь можно обработать клик и произвести нужные действия, например, измерение расстояния
-            });
 
-            // Обработчик события нажатия на кнопку "Очистить"
+            });
             document.getElementById('clear-button').addEventListener('click', function() {
                 clearCanvas();
             });
-
-            // Рисуем сетку после загрузки страницы
             drawGrid();
         };
     </script>

@@ -259,24 +259,10 @@ def createGame(request):
     else:
         return redirect('login')
 
-def generateTable(width, height):
-    table_html = "<table class='gameField'>"
-    for i in range(height):
-        table_html += "<tr>"
-        for j in range(width):
-            table_html += "<td class='gameCell'></td>"
-        table_html += "</tr>"
-    table_html += "</table>"
-    return table_html
-
 
 def tableGenerator(request):
     if request.method == 'POST':
         width = int(request.POST.get('width'))
         height = int(request.POST.get('height'))
-        table_html = generateTable(width, height)
-        return render(request, 'main/gameScreen.html', {'table_html': table_html})
+        return render(request, 'main/game.html', {'width': width, 'height': height})
     return render(request, 'main/createGameScreen.html')
-
-def game(request):
-    return render(request, 'main/game.html')
