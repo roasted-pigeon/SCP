@@ -58,12 +58,9 @@ SCP DnD
 
             // Функция для изменения размера сетки
             function changeGridSize() {
-                const newCellSize = document.getElementById('grid-size').value.split('x')[0];
-                let newNumRows = parseInt(document.getElementById('num-rows').value); // Количество строк
-                let newNumCols = parseInt(document.getElementById('num-cols').value); // Количество столбцов
+                let newCellSize = parseInt(document.getElementById('grid-size').value.split('x')[0]);
                 if (newCellSize !== cellSize) {
-                    numRows = newNumRows;
-                    numCols = newNumCols;
+                    cellSize = newCellSize;
                     canvas.width = cellSize * numCols;
                     canvas.height = cellSize * numRows;
                     clearCanvas();
