@@ -1,11 +1,16 @@
 import django.forms
-from django import forms
 
 from .models import User, Game
 from django.forms import ModelForm
 
 class DateInput(django.forms.DateInput):
     input_type = 'date'
+
+class TimePickerInput(django.forms.TimeInput):
+    input_type = 'time'
+
+class DateTimePickerInput(django.forms.DateTimeInput):
+    input_type = 'datetime'
 
 class UserLoginForm(ModelForm):
     class Meta:
@@ -19,7 +24,7 @@ class UserLoginForm(ModelForm):
             }
         ),
     }
-    password_hash = django.forms.CharField(widget=forms.PasswordInput())
+    password_hash = django.forms.CharField(widget=django.forms.PasswordInput())
 
 class UserSignupForm(ModelForm):
     class Meta:
@@ -43,8 +48,8 @@ class UserSignupForm(ModelForm):
             }
         ),
     }
-    password_hash = django.forms.CharField(widget=forms.PasswordInput())
-    password_repeat = django.forms.CharField(widget=forms.PasswordInput())
+    password_hash = django.forms.CharField(widget=django.forms.PasswordInput())
+    password_repeat = django.forms.CharField(widget=django.forms.PasswordInput())
 
 class GameCreateForm(ModelForm):
     class Meta:
@@ -62,6 +67,7 @@ class GameCreateForm(ModelForm):
                 'class': 'input'
             }
         ),
-        'next_session_date': DateInput(),
     }
+    next_session_date = django.forms.DateField(widget=DateInput)
+    next_session_time = django.forms.TimeField(widget=TimePickerInput)
 

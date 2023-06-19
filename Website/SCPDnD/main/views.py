@@ -3,6 +3,7 @@ import os
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.utils.datetime_safe import datetime
+from django.utils.dateparse import parse_datetime
 import hashlib
 import base64
 
@@ -239,7 +240,7 @@ def createGame(request):
                         title=instance.title,
                         description = instance.description,
                         creation_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        next_session_date = instance.next_session_date.strftime("%Y-%m-%d %H:%M:%S"),
+                        next_session_date = parse_datetime(request.POST['next_session_date']+' '+request.POST['next_session_time']),
                         creator = User.objects.get(email=current_user),
                     )
                     game_record.save()
