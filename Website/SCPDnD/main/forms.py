@@ -1,4 +1,5 @@
 import django.forms
+from django import forms
 
 from .models import User, Game
 from django.forms import ModelForm
@@ -17,12 +18,8 @@ class UserLoginForm(ModelForm):
                 'class': 'input'
             }
         ),
-        'password_hash': django.forms.TextInput(
-            attrs={
-                'class':'input'
-            }
-        )
     }
+    password_hash = django.forms.CharField(widget=forms.PasswordInput())
 
 class UserSignupForm(ModelForm):
     class Meta:
@@ -45,18 +42,9 @@ class UserSignupForm(ModelForm):
                 'class': 'input'
             }
         ),
-        'password_hash': django.forms.TextInput(
-            attrs={
-                'class': 'input'
-            }
-        )
     }
-    password_repeat = django.forms.CharField(widget=django.forms.TextInput(
-            attrs={
-                'class': 'input'
-            }
-        )
-    )
+    password_hash = django.forms.CharField(widget=forms.PasswordInput())
+    password_repeat = django.forms.CharField(widget=forms.PasswordInput())
 
 class GameCreateForm(ModelForm):
     class Meta:
