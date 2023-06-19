@@ -17,7 +17,7 @@
       <tbody>
         {% for game in games %}
         <tr>
-          <td>{{ game.title }}</td>
+          <td><a href="{% url 'gameScreenCreate' %}">{{ game.title }}</a></td>
             <td>{{ game.description }}</td>
           <td>{{ game.creation_date }}</td>
             <td>{{ game.next_session_date }}</td>

@@ -239,12 +239,23 @@ def createGame(request):
                     game_record = Game.objects.create(
                         title=instance.title,
                         description = instance.description,
-                        creation_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        creation_date = parse_datetime(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
                         next_session_date = parse_datetime(request.POST['next_session_date']+' '+request.POST['next_session_time']),
                         creator = User.objects.get(email=current_user),
                     )
-                    game_record.save()
-                    return redirect('gameLibrary')
+                    if game_record.creation_date>game_record.next_session_date:
+                        form = GameCreateForm()
+                        data = {
+                            'current_user': current_user,
+                            'username': User.objects.get(email=current_user).first_name + " " + User.objects.get(
+                                email=current_user).last_name,
+                            'form': form,
+                            'error': 'Date of next session cannot be before the game is created.'
+                        }
+                        return render(request, 'main/gameCreate.html', data)
+                    else:
+                        game_record.save()
+                        return redirect('gameLibrary')
                 except:
                     error = 'Incorrect data.'
             else:
