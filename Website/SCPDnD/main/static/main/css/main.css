@@ -34,7 +34,7 @@ body {
 .form-group input {
   width: 100%;
   padding: 5px;
-  border: 0px;
+  border: 0;
 }
 
 .form-group input[type="submit"] {
@@ -68,7 +68,7 @@ header {
 select {
     background: #262626;
     color: #ffffff;
-    border: 0px;
+    border: 0;
 }
 
 option{
@@ -110,12 +110,12 @@ th, td {
 }
 
 .upload_link {
-      width: 100%
+      width: 100%;
       text-align: center;
 }
 
 .upload_header {
-      width: 100%
+      width: 100%;
       text-align: center;
 }
 

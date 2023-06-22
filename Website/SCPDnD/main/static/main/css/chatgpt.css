@@ -1,0 +1,222 @@
+body {
+    background: #262626;
+    color: #ffffff;
+}
+
+header {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    background: #111111;
+    padding: 10px;
+}
+
+.logo img {
+    max-width: 100px;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+li {
+    display: inline-block;
+    margin-right: 10px;
+    font-size: 16px;
+}
+
+li a {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+li a:hover {
+    color: #bbbbbb;
+}
+
+select {
+    background: #262626;
+    color: #ffffff;
+    border: 0;
+}
+
+option {
+    background: #262626;
+    color: #ffffff;
+}
+
+.container {
+    width: 80%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 0;
+    border-radius: 5px;
+    background: #262626;
+    color: #ffffff;
+}
+
+.form-group input[type="submit"] {
+    background-color: #4CAF50;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.form-group input[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-gap: 10px;
+}
+
+.grid-item {
+    border: 1px solid #ffffff;
+    padding: 10px;
+    text-align: center;
+}
+
+.table-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    overflow-y: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ffffff;
+}
+
+.upload_link {
+    width: 100%;
+    text-align: center;
+}
+
+.upload_header {
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+}
+
+.containerGameForm {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+form {
+    width: 400px;
+    padding: 20px;
+    border: 1px solid #ffffff;
+    border-radius: 5px;
+    background: #262626;
+}
+
+table.gameField {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-collapse: collapse;
+}
+
+td.gameCell {
+    background-color: #ffffff;
+    width: 100px;
+    min-width: 100px;
+    height: 100px;
+    min-height: 100px;
+    border: 1px solid #000000;
+}
+
+/* Additional Styles for SCP Foundation Theme */
+header img {
+    vertical-align: middle;
+    margin-right: 10px;
+}
+
+.logo {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.logo img {
+    max-width: 150px;
+}
+
+ul li:first-child {
+    margin-right: auto;
+}
+
+ul li:last-child {
+    margin-left: auto;
+}
+
+ul li select {
+    width: auto;
+    background: transparent;
+    color: #ffffff;
+    border: none;
+}
+
+ul li select:hover {
+    color: #bbbbbb;
+}
+
+ul li ul {
+    display: none;
+    position: absolute;
+    background: #262626;
+    padding: 10px;
+}
+
+ul li:hover ul {
+    display: block;
+}
+
+ul li ul li {
+    float: none;
+    display: block;
+    margin: 5px 0;
+}
+
+ul li ul li a {
+    color: #ffffff;
+}
+
+ul li ul li a:hover {
+    color: #bbbbbb;
+}
