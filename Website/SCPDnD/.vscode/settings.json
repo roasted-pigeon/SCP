@@ -1,0 +1,10 @@
+{
+    "python.django.enable": true,
+    "python.analysis.extraPaths": [
+        "./SCPDnD"
+    ],
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.formatting.provider": "black",
+    "editor.formatOnSave": true
+}

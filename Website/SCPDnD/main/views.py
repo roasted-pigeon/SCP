@@ -15,7 +15,7 @@ def mainPage(request):
     if 'user' in request.session:
         current_user = request.session['user']
         data = {
-            'current_user': current_user, 
+            'current_user': current_user,
             'username':
                 User.objects.get(email=current_user).first_name
                 + " "
