@@ -1,2 +1,21 @@
+# Python temporary files
+__pycache__/
+*.py[cod]
+*$py.class
 
+# Distribution / packaging
+*.egg-info/
+dist/
+build/
+eggs/
+*.egg
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# IDE specific files
+**/.vscode/
+*.pyc
 **/.idea/
